@@ -130,7 +130,6 @@ SHT_MAP = {
     0x11: SHT_GROUP,
     0x12: SHT_SYMTAB_SHNDX,
     0x13: SHT_NUM,
-    0x60000000: SHT_LOOS,
 }
 SHF_MAP = {
     0x1: SHF_WRITE,

@@ -124,7 +124,7 @@ _SPEC_NAMES = [
     "PT_PHDR",
     "PT_TLS",
     "PT_OS",
-    "PT_PROC"
+    "PT_PROC",
     # Section header types
     "SHT_NULL",
     "SHT_PROGBITS",

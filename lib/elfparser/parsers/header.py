@@ -157,4 +157,25 @@ def parse_section_header(buf, shoff, sh_size, sh_num, endian, arch):
     sections = []
 
     for _ in range(sh_num):
-        pass
+        s={}
+        s["name"]=endian_read(buf,endian,4)
+        sh_type = endian_read(buf,endian,4)
+        if sh_type not in SHT_MAP:
+            raise ParseError(f"invalid sh_type: {sh_type:#x}")
+        s["type"] = SHT_MAP[sh_type]
+        sh_flags = endian_read(buf,endian,ADDR_SIZE)
+        f = set()
+        for flag,name in SHF_MAP.items():
+            if flag&sh_flags:
+                f.add(name)
+        s["flags"]=f
+        s["addr"]=endian_read(buf,endian,ADDR_SIZE)
+        s["offset"]=endian_read(buf,endian,ADDR_SIZE)
+        s["size"]=endian_read(buf,endian,ADDR_SIZE)
+        s["link"]=endian_read(buf,endian,4)
+        s["info"]=endian_read(buf,endian,4)
+        s["addralign"]=endian_read(buf,endian,ADDR_SIZE)
+        s["entsize"]=endian_read(buf,endian,ADDR_SIZE)
+        sections.append(s)
+    
+    return sections
