@@ -2,11 +2,17 @@ from ..err import ParseError
 from ..const import *
 from ..maps import *
 from ..helpers import endian_read
+import math
 
 ET_LOOS = 0xFE00
 ET_HIOS = 0xFEFF
 ET_LOPROC = 0xFF00
 ET_HIPROC = 0xFFFF
+
+PT_LOOS = 0x60000000
+PT_HIOS = 0x6FFFFFFF
+PT_LOPROC = 0x70000000
+PT_HIPROC = 0x7FFFFFFF
 
 RESERVED_ISA_RANGES = (range(0x18, 0x23), range(0x0B, 0x0D))
 
@@ -21,8 +27,8 @@ def parse_header(buf):
     arch = ord(buf.read(1))
     if arch not in (1, 2):
         raise ParseError(f"Invalid EI_CLASS {arch}!")
-    output["arch"] =arch= ARCH_MAP[arch]
-    ADDR_SIZE=4 if arch==ARCH_32 else 8
+    output["arch"] = arch = ARCH_MAP[arch]
+    ADDR_SIZE = 4 if arch == ARCH_32 else 8
 
     endian = ord(buf.read(1))
     if endian not in (1, 2):
@@ -30,6 +36,7 @@ def parse_header(buf):
     output["endian"] = endian = ENDIAN_MAP[endian]
 
     version = ord(buf.read(1))
+
     if version != 1:
         raise ParseError(f"EI_VER should be 1, got {version}")
     output["version"] = EI_VER_1
@@ -51,6 +58,7 @@ def parse_header(buf):
     else:
         raise ParseError(f"Invalid e_type {hex(et)}")
     output["e_type"] = e_type
+    output["e_type_int"] = et
 
     isa_int = endian_read(buf, endian, 2)
 
@@ -63,40 +71,90 @@ def parse_header(buf):
         else:
             raise ParseError(f"Unknown ISA {hex(isa_int)}")
     output["isa"] = isa
-    
-    e_version = endian_read(buf,endian,4)
-    if e_version!=1:
+
+    e_version = endian_read(buf, endian, 4)
+    if e_version != 1:
         raise ParseError(f"e_version should be 1, got {e_version}")
     output["e_version"] = e_version
 
-    entry_point = endian_read(buf,endian,ADDR_SIZE)
-    output["entry_point"]=entry_point
-    
-    phoff = endian_read(buf,endian,ADDR_SIZE)
-    output["program_header_start"]=phoff
+    entry_point = endian_read(buf, endian, ADDR_SIZE)
+    output["entry_point"] = entry_point
 
-    shoff = endian_read(buf,endian,ADDR_SIZE)
-    output["section_header_start"]=shoff
+    phoff = endian_read(buf, endian, ADDR_SIZE)
+    output["program_header_start"] = phoff
 
-    flags =  endian_read(buf,endian,4)
-    output["flags"]=flags
+    shoff = endian_read(buf, endian, ADDR_SIZE)
+    output["section_header_start"] = shoff
 
-    header_size = endian_read(buf,endian,2)
-    output["header_size"]=header_size
-    
-    ph_size = endian_read(buf,endian,2)
-    output["program_header_size"]=ph_size
+    flags = endian_read(buf, endian, 4)
+    output["flags"] = flags
 
-    ph_num = endian_read(buf,endian,2)
-    output["program_header_entries"]=ph_num
+    header_size = endian_read(buf, endian, 2)
+    output["header_size"] = header_size
 
-    sh_size = endian_read(buf,endian,2)
-    output["section_header_size"]=sh_size
+    ph_size = endian_read(buf, endian, 2)
+    output["program_header_size"] = ph_size
 
-    sh_num = endian_read(buf,endian,2)
-    output["section_header_entries"]=ph_num
+    ph_num = endian_read(buf, endian, 2)
+    output["program_header_entries"] = ph_num
 
-    sh_strndx = endian_read(buf,endian,2)
-    output["section_header_names_index"]=sh_strndx
-    
+    sh_size = endian_read(buf, endian, 2)
+    output["section_header_size"] = sh_size
+
+    sh_num = endian_read(buf, endian, 2)
+    output["section_header_entries"] = sh_num
+
+    sh_strndx = endian_read(buf, endian, 2)
+    output["section_header_names_index"] = sh_strndx
     return output
+
+
+def parse_program_header(buf, phoff, ph_size, ph_num, endian, arch):
+    ADDR_SIZE = 4 if arch == ARCH_32 else 8
+    buf.seek(phoff)
+
+    segm = []
+
+    for _ in range(ph_num):
+        r = {}
+
+        p_type_int = endian_read(buf, endian, 4)
+        if PT_LOOS <= p_type_int <= PT_HIOS:
+            p_type = PT_OS
+        elif PT_LOPROC <= p_type_int <= PT_HIPROC:
+            p_type = PT_PROC
+        elif p_type_int not in PT_MAP:
+            raise ParseError(f"invalid p_type {hex(p_type)}")
+        else:
+            p_type = PT_MAP[p_type_int]
+        r["type"] = p_type
+        if arch == ARCH_64:
+            r["flags"] = endian_read(buf, endian, 4)
+        r["offset"] = offset = endian_read(buf, endian, ADDR_SIZE)
+        r["vaddr"] = vaddr = endian_read(buf, endian, ADDR_SIZE)
+        r["paddr"] = endian_read(buf, endian, ADDR_SIZE)  # irrelevant
+        r["filesz"] = endian_read(buf, endian, ADDR_SIZE)
+        r["memsz"] = endian_read(buf, endian, ADDR_SIZE)
+        if arch == ARCH_32:
+            r["flags"] = endian_read(buf, endian, 4)
+        align = endian_read(buf, endian, ADDR_SIZE)
+        if align > 1:
+            if math.log(align, 2) % 1 != 0:
+                raise ParseError("Wrong p_align: should be 0 or power of 2.")
+            if vaddr % align != offset % align:
+                raise ParseError(
+                    "Wrong p_align: p_offset mod p_align != p_vaddr mod p_align"
+                )
+        r["align"] = align
+        segm.append(r)
+        buf.read(ph_size - (6 * ADDR_SIZE + 8))  # ignore the rest
+    return segm
+
+
+def parse_section_header(buf, shoff, sh_size, sh_num, endian, arch):
+    ADDR_SIZE = 4 if arch == ARCH_32 else 8
+    buf.seek(shoff)
+    sections = []
+
+    for _ in range(sh_num):
+        pass

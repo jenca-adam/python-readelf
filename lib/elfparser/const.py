@@ -17,7 +17,7 @@ _SPEC_NAMES = [
     "ENDIAN_LITTLE",
     # versions
     "EI_VER_1",
-    # abis
+    # Application Binary interfaces
     "ABI_SYSTEMV",
     "ABI_HPUX",
     "ABI_NETBSD",
@@ -36,7 +36,7 @@ _SPEC_NAMES = [
     "ABI_FENIXOS",
     "ABI_CLOUDABI",
     "ABI_OPENVOS",
-    # ets
+    # Object file types
     "ET_NONE",
     "ET_REL",
     "ET_EXEC",
@@ -44,7 +44,7 @@ _SPEC_NAMES = [
     "ET_CORE",
     "ET_OS",
     "ET_PROC",
-    # isas (i wanna die)
+    # Instruction Architecture set (i wanna die)
     "ISA_RESERVED",
     "ISA_NONE",
     "ISA_ATT",
@@ -64,7 +64,7 @@ _SPEC_NAMES = [
     "ISA_S390",
     "ISA_IBMSPU",
     "ISA_NECV800",
-    "ISA_FR20",  # bruh like fr?
+    "ISA_FR20",
     "ISA_TRWRH32",
     "ISA_MRCE",
     "ISA_ARM",
@@ -114,6 +114,51 @@ _SPEC_NAMES = [
     "ISA_RISCV",
     "ISA_BPF",
     "ISA_65C816",
+    # Program Header Segment Types
+    "PT_NULL",
+    "PT_LOAD",
+    "PT_DYNAMIC",
+    "PT_INTERP",
+    "PT_NOTE",
+    "PT_SHLIB",
+    "PT_PHDR",
+    "PT_TLS",
+    "PT_OS",
+    "PT_PROC"
+    # Section header types
+    "SHT_NULL",
+    "SHT_PROGBITS",
+    "SHT_SYMTAB",
+    "SHT_STRTAB",
+    "SHT_RELA",
+    "SHT_HASH",
+    "SHT_DYNAMIC",
+    "SHT_NOTE",
+    "SHT_NOBITS",
+    "SHT_REL",
+    "SHT_SHLIB",
+    "SHT_DYNSYM",
+    "SHT_INIT_ARRAY",
+    "SHT_FINI_ARRAY",
+    "SHT_PREINIT_ARRAY",
+    "SHT_GROUP",
+    "SHT_SYMTAB_SHNDX",
+    "SHT_NUM",
+    "SHT_OS",
+    # Section header flags
+    "SHF_WRITE",
+    "SHF_ALLOC",
+    "SHF_EXECINSTR",
+    "SHF_MERGE",
+    "SHF_INFO_LINK",
+    "SHF_LINK_ORDER",
+    "SHF_OS_NONCONFORMING",
+    "SHF_GROUP",
+    "SHF_TLS",
+    "SHF_MASKOS",
+    "SHF_MASKPROC",
+    "SHF_ORDERED",
+    "SHF_EXCLUDE",
 ]
 for _i in _SPEC_NAMES:
 
