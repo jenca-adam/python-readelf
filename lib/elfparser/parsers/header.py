@@ -14,6 +14,7 @@ PT_HIOS = 0x6FFFFFFF
 PT_LOPROC = 0x70000000
 PT_HIPROC = 0x7FFFFFFF
 
+SHT_LOOS = 0x60000000
 RESERVED_ISA_RANGES = (range(0x18, 0x23), range(0x0B, 0x0D))
 
 
@@ -57,8 +58,8 @@ def parse_header(buf):
         e_type = ET_PROC
     else:
         raise ParseError(f"Invalid e_type {hex(et)}")
-    output["e_type"] = e_type
-    output["e_type_int"] = et
+    output["type"] = e_type
+    output["type_int"] = et
 
     isa_int = endian_read(buf, endian, 2)
 
@@ -75,37 +76,37 @@ def parse_header(buf):
     e_version = endian_read(buf, endian, 4)
     if e_version != 1:
         raise ParseError(f"e_version should be 1, got {e_version}")
-    output["e_version"] = e_version
+    output["version"] = e_version
 
     entry_point = endian_read(buf, endian, ADDR_SIZE)
-    output["entry_point"] = entry_point
+    output["entry"] = entry_point
 
     phoff = endian_read(buf, endian, ADDR_SIZE)
-    output["program_header_start"] = phoff
+    output["phoff"] = phoff
 
     shoff = endian_read(buf, endian, ADDR_SIZE)
-    output["section_header_start"] = shoff
+    output["shoff"] = shoff
 
     flags = endian_read(buf, endian, 4)
     output["flags"] = flags
 
     header_size = endian_read(buf, endian, 2)
-    output["header_size"] = header_size
+    output["ehsize"] = header_size
 
     ph_size = endian_read(buf, endian, 2)
-    output["program_header_size"] = ph_size
+    output["phentsize"] = ph_size
 
     ph_num = endian_read(buf, endian, 2)
-    output["program_header_entries"] = ph_num
+    output["phnum"] = ph_num
 
     sh_size = endian_read(buf, endian, 2)
-    output["section_header_size"] = sh_size
+    output["shentsize"] = sh_size
 
     sh_num = endian_read(buf, endian, 2)
-    output["section_header_entries"] = sh_num
+    output["shnum"] = sh_num
 
     sh_strndx = endian_read(buf, endian, 2)
-    output["section_header_names_index"] = sh_strndx
+    output["shstrndx"] = sh_strndx
     return output
 
 
@@ -157,25 +158,30 @@ def parse_section_header(buf, shoff, sh_size, sh_num, endian, arch):
     sections = []
 
     for _ in range(sh_num):
-        s={}
-        s["name"]=endian_read(buf,endian,4)
-        sh_type = endian_read(buf,endian,4)
-        if sh_type not in SHT_MAP:
+        print(buf.tell())
+        s = {}
+        s["name"] = endian_read(buf, endian, 4)
+        sh_type = endian_read(buf, endian, 4)
+        if sh_type > SHT_LOOS:
+            s["type"] = SHT_OS
+        elif sh_type not in SHT_MAP:
             raise ParseError(f"invalid sh_type: {sh_type:#x}")
-        s["type"] = SHT_MAP[sh_type]
-        sh_flags = endian_read(buf,endian,ADDR_SIZE)
+        else:
+            s["type"] = SHT_MAP[sh_type]
+        sh_flags = endian_read(buf, endian, ADDR_SIZE)
         f = set()
-        for flag,name in SHF_MAP.items():
-            if flag&sh_flags:
+        for flag, name in SHF_MAP.items():
+            if flag & sh_flags:
                 f.add(name)
-        s["flags"]=f
-        s["addr"]=endian_read(buf,endian,ADDR_SIZE)
-        s["offset"]=endian_read(buf,endian,ADDR_SIZE)
-        s["size"]=endian_read(buf,endian,ADDR_SIZE)
-        s["link"]=endian_read(buf,endian,4)
-        s["info"]=endian_read(buf,endian,4)
-        s["addralign"]=endian_read(buf,endian,ADDR_SIZE)
-        s["entsize"]=endian_read(buf,endian,ADDR_SIZE)
+        s["flags"] = f
+        s["addr"] = endian_read(buf, endian, ADDR_SIZE)
+        s["offset"] = endian_read(buf, endian, ADDR_SIZE)
+        s["size"] = endian_read(buf, endian, ADDR_SIZE)
+        s["link"] = endian_read(buf, endian, 4)
+        s["info"] = endian_read(buf, endian, 4)
+        s["addralign"] = endian_read(buf, endian, ADDR_SIZE)
+        s["entsize"] = endian_read(buf, endian, ADDR_SIZE)
         sections.append(s)
-    
+        print(s)
+
     return sections
