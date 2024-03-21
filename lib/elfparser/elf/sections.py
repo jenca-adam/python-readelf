@@ -66,6 +66,13 @@ class Sections:
             )
             self.sections = [Section(sec_d, self, self.buf) for sec_d in self.sec_dicts]
 
+    def __getitem__(self, i):
+        if isinstance(i, int):
+            return self.sections[i]
+
+    def find_section(self, name):
+        return tuple(q for q in self.sections if q.name == name)
+
     @classmethod
     def from_stream(cls, buf):
         meta = parse_header(buf)
