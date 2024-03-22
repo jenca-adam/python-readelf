@@ -1,7 +1,7 @@
 import io
-from ..parsers.header import parse_header, parse_section_header
-from ..const import *
-from ..err import *
+from .header import parse_header, parse_section_header
+from .const import *
+from .err import *
 
 
 class Section:

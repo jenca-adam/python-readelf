@@ -1,7 +1,7 @@
-from ..err import ParseError
-from ..const import *
-from ..maps import *
-from ..helpers import endian_read
+from .err import ParseError
+from .const import *
+from .maps import *
+from .helpers import endian_read
 import math
 
 ET_LOOS = 0xFE00
