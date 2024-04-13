@@ -158,7 +158,6 @@ def parse_section_header(buf, shoff, sh_size, sh_num, endian, arch):
     sections = []
 
     for _ in range(sh_num):
-        print(buf.tell())
         s = {}
         s["name"] = endian_read(buf, endian, 4)
         sh_type = endian_read(buf, endian, 4)
@@ -182,6 +181,5 @@ def parse_section_header(buf, shoff, sh_size, sh_num, endian, arch):
         s["addralign"] = endian_read(buf, endian, ADDR_SIZE)
         s["entsize"] = endian_read(buf, endian, ADDR_SIZE)
         sections.append(s)
-        print(s)
 
     return sections

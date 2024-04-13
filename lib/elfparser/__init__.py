@@ -1,2 +1,1 @@
-from .header import *
-from .sections import *
+from .elffile import *
