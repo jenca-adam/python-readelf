@@ -1,9 +1,10 @@
 import io
 from .parsers import parse_content
 from .helpers import map_public_attributes
+
+
 class Section:
     def __init__(self, sec_dict, sections, buf, is_str_tab=False):
-        
         self.sections = sections
         self.is_str_tab = is_str_tab
         self.sec_dict = sec_dict
@@ -23,8 +24,10 @@ class Section:
 
     def __repr__(self):
         return f"<Section {self.name} @ {self.addr:#x}>"
+
     def __setattr__(self, attr, value):
-        self.__dict__[attr]=value
+        self.__dict__[attr] = value
+
     @property
     def name(self):
         if self.is_str_tab:

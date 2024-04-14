@@ -1,0 +1,688 @@
+<root>
+<tr><th scope="col" class="columncaption" align="left" valign="top"><div class="headerpadding">Name</div></th>
+<th scope="col" class="columncaption" align="left" valign="top"><div class="headerpadding">Value</div></th>
+<th scope="col" class="columncaption" align="left" valign="top"><div class="headerpadding"><tt>d_un</tt></div></th>
+<th scope="col" class="columncaption" align="left" valign="top"><div class="headerpadding">Executable</div></th>
+<th scope="col" class="columncaption" align="left" valign="top"><div class="headerpadding">Shared Object</div></th>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_NULL</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Ignored</div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_NEEDED</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>1</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_PLTRELSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>2</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_PLTGOT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>3</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_HASH</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>4</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_STRTAB</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>5</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SYMTAB</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>6</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_RELA</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>7</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_RELASZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>8</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_RELAENT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>9</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_STRSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>10</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SYMENT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>11</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_INIT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>12</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_FINI</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>13</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SONAME</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>14</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Ignored</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_RPATH</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>15</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SYMBOLIC</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>16</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Ignored</div></td>
+<td align="left" valign="top"><div class="pad5x10">Ignored</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_REL</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>17</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_RELSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>18</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_RELENT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>19</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Mandatory</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_PLTREL</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>20</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_DEBUG</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>21</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Ignored</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_TEXTREL</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>22</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Ignored</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_JMPREL</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>23</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_BIND_NOW</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>24</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Ignored</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_INIT_ARRAY</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>25</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_FINI_ARRAY</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>26</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_INIT_ARRAYSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>27</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_FINI_ARRAYSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>28</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_RUNPATH</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>29</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_FLAGS</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>30</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_ENCODING</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>32</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_PREINIT_ARRAY</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>32</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Ignored</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_PREINIT_ARRAYSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>33</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Ignored</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_MAXPOSTAGS</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>34</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_LOOS</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6000000d</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_AUXILIARY</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6000000d</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_RTLDINF</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6000000e</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_FILTER</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6000000e</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_CAP</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000010</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_SYMTAB</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000011</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_SYMSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000012</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_ENCODING</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000013</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_SORTENT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000013</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_SYMSORT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000014</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_SYMSORTSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000015</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_TLSSORT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000016</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_TLSSORTSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000017</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_CAPINFO</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000018</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_STRPAD</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x60000019</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_CAPCHAIN</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6000001a</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_LDMACH</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6000001b</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_CAPCHAINENT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6000001d</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SUNW_CAPCHAINSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6000001f</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_HIOS</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffff000</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_VALRNGLO</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffd00</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_CHECKSUM</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffdf8</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_PLTPADSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffdf9</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_MOVEENT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffdfa</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_MOVESZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffdfb</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_POSFLAG_1</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffdfd</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SYMINSZ</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffdfe</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SYMINENT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffdff</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_VALRNGHI</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffdff</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_ADDRRNGLO</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffe00</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_CONFIG</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffefa</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_DEPAUDIT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffefb</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_AUDIT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffefc</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_PLTPAD</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffefd</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_MOVETAB</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffefe</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SYMINFO</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffeff</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_ADDRRNGHI</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffeff</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_RELACOUNT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffff9</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_RELCOUNT</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffffa</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_FLAGS_1</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffffb</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_VERDEF</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffffc</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_VERDEFNUM</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffffd</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_VERNEED</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6ffffffe</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_ptr</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_VERNEEDNUM</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x6fffffff</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_LOPROC</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x70000000</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_SPARC_REGISTER</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x70000001</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_AUXILIARY</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x7ffffffd</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_USED</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x7ffffffe</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_FILTER</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x7fffffff</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>d_val</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Optional</div></td>
+</tr>
+
+<tr class="yellow2">
+<td scope="row" align="left" valign="top"><div class="pad5x10"><tt>DT_HIPROC</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10"><tt>0x7fffffff</tt></div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+<td align="left" valign="top"><div class="pad5x10">Unspecified</div></td>
+</tr>
+</root>

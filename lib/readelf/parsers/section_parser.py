@@ -12,7 +12,7 @@ NAME_TO_PARSER_MAPPING = {
     ".dynsym": dynsym.DynSymTab,
     ".strtab": strtab.StrTab,
     ".shstrtab": strtab.StrTab,
-    ".symtab": symtab.SymTab
+    ".symtab": symtab.SymTab,
 }
 
 

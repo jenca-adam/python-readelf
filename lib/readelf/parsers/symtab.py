@@ -1,7 +1,27 @@
 from io import BytesIO
-from ..const import ARCH_32, ARCH_64
+from ..const import ARCH_32, ARCH_64, SHN_INDEX, SHN_OS, SHN_PROC, SHN_RESERVE
+from ..maps import SHN_MAP
 from ..helpers import endian_read
 
+SHN_LORESERVE = 0xFF00
+SHN_HIRESERVE = 0xFFFF
+SHN_LOPROC = 0xFF00
+SHN_HIPROC = 0xFF1F
+SHN_LOOS = 0xFF20
+SHN_HIOS = 0xFF3F
+
+
+def _get_shndx_const(shndx):
+    if shndx in SHN_MAP:
+        return SHN_MAP[shndx].__class__(shndx)
+    elif SHN_LOPROC <= shndx <= SHN_HIPROC:
+        return SHN_PROC.__class__(shndx)
+    elif SHN_LOOS <= shndx <= SHN_HIOS:
+        return SHN_OS.__class__(shndx)
+    elif SHN_LORESERVE <= shndx <= SHN_HIRESERVE:
+        return SHN_RESERVE.__class__(shndx)
+    else:
+        return shndx
 
 class Sym:
     def __init__(self, name, info, other, shndx, value, size, file):
@@ -9,8 +29,8 @@ class Sym:
         self._name = name
         self._info = info
         self._other = other
-        self.shndx = shndx
-        self.value = value
+        self.shndx = _get_shndx_const(shndx)
+        self._value = value
         self.size = size
         self.file = file
         self.bind = self._info >> 4  # enum
@@ -20,9 +40,20 @@ class Sym:
     def _load_name(self, dynstr):
         self.name = dynstr.get_name(self._name)
 
+    def _load_value(self):
+        if isinstance(self.shndx,int):
+            self.section = self.file.sections[self.shndx]
+            start_index = self._value - self.section.addr
+            self.value = self.section.content[start_index : start_index + self.size]
+        else:
+            self.section = None
+            self.value = b""
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.name} ({self.shndx}@{self._value:x}+{self.size})>"
 
 class SymTab:
     __sym_class = Sym
+
     def __init__(self, content, file):
         self.buf = BytesIO(content)
         self.file = file
@@ -37,7 +68,9 @@ class SymTab:
         while True:
             name, value, size, info, other, shndx, offset = self._read_one_symbol()
             self.symbols.append(
-                self.__class__.__sym_class(name, info, other, shndx, value, size, self.file)
+                self.__class__.__sym_class(
+                    name, info, other, shndx, value, size, self.file
+                )
             )
             if offset == len(content):
                 break
@@ -47,8 +80,10 @@ class SymTab:
 
     def _after_init(self):
         self._strtab = self.get_strtab()
+
         for sym in self.symbols:
             sym._load_name(self._strtab)
+            sym._load_value()
 
     def _read_one_symbol(self):
         if self._is_arch_64:
@@ -66,4 +101,10 @@ class SymTab:
             other = endian_read(self.buf, self.endian, self._uchar_size)
             shndx = endian_read(self.buf, self.endian, self._shndx_size)
         offset = self.buf.tell()
+
         return name, value, size, info, other, shndx, offset
+    
+    def get_symbol(self, symname):
+        for symbol in self.symbols:
+            if symbol.name==symname:
+                return symbol

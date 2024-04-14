@@ -18,13 +18,18 @@ class ELFFile:
             for sec_d in sec_dicts:
                 sec = Section(sec_d, self, self.buf)
                 if sec.type == SHT_STRTAB:
-                    self.strtab = Section(sec_d, self, self.buf, is_str_tab = True)
+                    self.strtab = Section(sec_d, self, self.buf, is_str_tab=True)
                 self.sections.append(sec)
             if self.strtab is None:
                 raise ParseError(".shstrtab section missing.")
         else:
-            self.strtab = Section(sec_dicts[sh_str_index], self, self.buf, is_str_tab = True)
-            self.sections = [Section(sec_d, self, self.buf, is_str_tab=False) for sec_d in self.sec_dicts]
+            self.strtab = Section(
+                sec_dicts[sh_str_index], self, self.buf, is_str_tab=True
+            )
+            self.sections = [
+                Section(sec_d, self, self.buf, is_str_tab=False)
+                for sec_d in self.sec_dicts
+            ]
         ph_entries = parse_program_header(
             self.buf,
             self.meta["phoff"],
