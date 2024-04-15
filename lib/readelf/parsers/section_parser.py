@@ -1,4 +1,4 @@
-from . import dynstr, dynsym, strtab, symtab
+from . import dynamic, dynstr, dynsym, strtab, symtab
 
 
 class UnknownSection:
@@ -8,6 +8,7 @@ class UnknownSection:
 
 
 NAME_TO_PARSER_MAPPING = {
+    ".dynamic": dynamic.Dynamic,
     ".dynstr": dynstr.DynStrTab,
     ".dynsym": dynsym.DynSymTab,
     ".strtab": strtab.StrTab,

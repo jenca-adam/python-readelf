@@ -23,6 +23,7 @@ def _get_shndx_const(shndx):
     else:
         return shndx
 
+
 class Sym:
     def __init__(self, name, info, other, shndx, value, size, file):
         self.name = ""
@@ -41,15 +42,17 @@ class Sym:
         self.name = dynstr.get_name(self._name)
 
     def _load_value(self):
-        if isinstance(self.shndx,int):
+        if isinstance(self.shndx, int):
             self.section = self.file.sections[self.shndx]
             start_index = self._value - self.section.addr
             self.value = self.section.content[start_index : start_index + self.size]
         else:
             self.section = None
             self.value = b""
+
     def __repr__(self):
         return f"<{self.__class__.__name__} {self.name} ({self.shndx}@{self._value:x}+{self.size})>"
+
 
 class SymTab:
     __sym_class = Sym
@@ -72,7 +75,7 @@ class SymTab:
                     name, info, other, shndx, value, size, self.file
                 )
             )
-            if offset == len(content):
+            if offset >= len(content):
                 break
 
     def get_strtab(self):
@@ -103,8 +106,8 @@ class SymTab:
         offset = self.buf.tell()
 
         return name, value, size, info, other, shndx, offset
-    
+
     def get_symbol(self, symname):
         for symbol in self.symbols:
-            if symbol.name==symname:
+            if symbol.name == symname:
                 return symbol

@@ -57,7 +57,13 @@ class ELFFile:
         for section in self.sections:
             if section.offset == offset:
                 return section
-        raise LookupError(f"No section found at offset {offset}")
+        raise LookupError(f"No section found at offset {offset:x}")
+
+    def find_at_addr(self, addr):
+        for section in self.sections:
+            if section.addr == addr:
+                return section
+        raise LookupError(f"No section found at address {addr:x}")
 
     @classmethod
     def from_stream(cls, buf):
