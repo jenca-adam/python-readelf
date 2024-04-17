@@ -3,6 +3,7 @@ from .const import *
 from .err import *
 from .sections import Section
 from .segments import ProgramSegments
+from .memory import Memory
 
 
 class ELFFile:
@@ -12,6 +13,7 @@ class ELFFile:
         self.__dict__.update(self.meta)
         self.sections = []
         self.buf = buf
+        self.memory = Memory()
         if sh_str_index is None:
             self.strtab = None
 
@@ -40,6 +42,8 @@ class ELFFile:
         )
         self.segments = ProgramSegments(ph_entries, self.buf, self)
         for section in self.sections:
+            if SHF_ALLOC in section.flags:
+                self.memory.alloc(section.addr, section)
             if hasattr(section, "_after_init"):
                 section._after_init()
         self.close()

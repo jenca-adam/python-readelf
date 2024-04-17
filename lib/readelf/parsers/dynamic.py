@@ -43,14 +43,16 @@ def _dyn_interpret_in_dynstr(content, file, *_):
 @_add_dyn_interpreter(DT_SYMINFO)
 @_add_dyn_interpreter(DT_VERDEF)
 @_add_dyn_interpreter(DT_MOVETAB)
-@_add_dyn_interpreter(DT_INIT_ARRAY)
-@_add_dyn_interpreter(DT_FINI_ARRAY)
 def _dyn_interpret_section(content, file, *_):
     try:
         return file.find_at_addr(content)
     except LookupError:
         return content
 
+@_add_dyn_interpreter(DT_INIT_ARRAY)
+def _dyn_interpret_init_array(content, file, parent):
+    file.memory.seek(content)
+    return file.memory.read(parent.find_entry(DT_INIT_ARRAYSZ).content)
 
 ##
 
@@ -108,7 +110,10 @@ class Dynamic:
             self.entries.append(DynamicEntry(d_tag, d_un, file, self))
             if offset >= self._size:
                 break
-
+    def find_entry(self,tag):
+        for entry in self.entries:
+            if entry.d_tag==tag:
+                return entry
     def _read_one_entry(self):
         if self.arch == ARCH_64:
             d_tag = endian_read(self.buf, self.endian, 8)  # 64_Xword
