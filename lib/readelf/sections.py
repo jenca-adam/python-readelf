@@ -19,7 +19,7 @@ class Section:
         self.entsize = sec_dict["entsize"]
         buf.seek(self.offset)
         self.content = buf.read(self.size)
-        self.parsed_content = parse_content(self.name, self.content, self.sections)
+        self.parsed_content = parse_content(self.type, self.content, self.sections)
         map_public_attributes(self.parsed_content, self)
 
     def __repr__(self):

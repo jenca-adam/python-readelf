@@ -19,7 +19,7 @@ class ELFFile:
 
             for sec_d in sec_dicts:
                 sec = Section(sec_d, self, self.buf)
-                if sec.type == SHT_STRTAB:
+                if sec.type == SHT.SHT_STRTAB:
                     self.strtab = Section(sec_d, self, self.buf, is_str_tab=True)
                 self.sections.append(sec)
             if self.strtab is None:
@@ -42,7 +42,7 @@ class ELFFile:
         )
         self.segments = ProgramSegments(ph_entries, self.buf, self)
         for section in self.sections:
-            if SHF_ALLOC in section.flags:
+            if SHF.SHF_ALLOC in section.flags:
                 self.memory.alloc(section.addr, section)
             if hasattr(section, "_after_init"):
                 section._after_init()

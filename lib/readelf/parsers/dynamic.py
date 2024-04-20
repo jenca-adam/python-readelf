@@ -1,4 +1,4 @@
-from ..maps import DYNAMIC_TAG_MAP, DT_D_VAL, DT_D_PTR
+from ..maps import DT_D_VAL, DT_D_PTR
 from ..const import *
 from ..helpers import endian_read
 from io import BytesIO
@@ -22,37 +22,37 @@ def _add_dyn_interpreter(value):
 ##
 
 
-@_add_dyn_interpreter(DT_NEEDED)
-@_add_dyn_interpreter(DT_SONAME)
-@_add_dyn_interpreter(DT_RUNPATH)
-@_add_dyn_interpreter(DT_AUXILIARY)
-@_add_dyn_interpreter(DT_SUNW_AUXILIARY)
-@_add_dyn_interpreter(DT_SUNW_FILTER)
+@_add_dyn_interpreter(DT.DT_NEEDED)
+@_add_dyn_interpreter(DT.DT_SONAME)
+@_add_dyn_interpreter(DT.DT_RUNPATH)
+@_add_dyn_interpreter(DT.DT_AUXILIARY)
+@_add_dyn_interpreter(DT.DT_SUNW_AUXILIARY)
+@_add_dyn_interpreter(DT.DT_SUNW_FILTER)
 def _dyn_interpret_in_dynstr(content, file, *_):
     dynstr = file.find_section(".dynstr")
     return dynstr.get_name(content)
 
 
-@_add_dyn_interpreter(DT_INIT)
-@_add_dyn_interpreter(DT_FINI)
-@_add_dyn_interpreter(DT_STRTAB)
-@_add_dyn_interpreter(DT_SYMTAB)
-@_add_dyn_interpreter(DT_RELA)
-@_add_dyn_interpreter(DT_VERNEED)
-@_add_dyn_interpreter(DT_SUNW_CAP)
-@_add_dyn_interpreter(DT_SYMINFO)
-@_add_dyn_interpreter(DT_VERDEF)
-@_add_dyn_interpreter(DT_MOVETAB)
+@_add_dyn_interpreter(DT.DT_INIT)
+@_add_dyn_interpreter(DT.DT_FINI)
+@_add_dyn_interpreter(DT.DT_STRTAB)
+@_add_dyn_interpreter(DT.DT_SYMTAB)
+@_add_dyn_interpreter(DT.DT_RELA)
+@_add_dyn_interpreter(DT.DT_VERNEED)
+@_add_dyn_interpreter(DT.DT_SUNW_CAP)
+@_add_dyn_interpreter(DT.DT_SYMINFO)
+@_add_dyn_interpreter(DT.DT_VERDEF)
+@_add_dyn_interpreter(DT.DT_MOVETAB)
 def _dyn_interpret_section(content, file, *_):
     try:
         return file.find_at_addr(content)
     except LookupError:
         return content
 
-@_add_dyn_interpreter(DT_INIT_ARRAY)
+@_add_dyn_interpreter(DT.DT_INIT_ARRAY)
 def _dyn_interpret_init_array(content, file, parent):
     file.memory.seek(content)
-    return file.memory.read(parent.find_entry(DT_INIT_ARRAYSZ).content)
+    return file.memory.read(parent.find_entry(DT.DT_INIT_ARRAYSZ).content)
 
 ##
 
@@ -65,8 +65,8 @@ def _parse_entry_content(d_tag, content, file, parent):
 
 ###
 def _is_pointer(d_tag):
-    if d_tag in DYNAMIC_TAG_MAP:
-        d_tag_const = DYNAMIC_TAG_MAP[d_tag]
+    if d_tag in DT:
+        d_tag_const = DT(d_tag)
         if d_tag_const in DT_D_VAL:
             return False  # val
         elif d_tag_const in DT_D_PTR:
@@ -79,7 +79,7 @@ def _is_pointer(d_tag):
 
 class DynamicEntry:
     def __init__(self, d_tag, d_un, file, parent):
-        self.d_tag = DYNAMIC_TAG_MAP.get(d_tag, d_tag)
+        self.d_tag = DT.get(d_tag, d_tag)
         self.content = d_un
         self.parent = parent
         self.pointer = _is_pointer(d_tag)
@@ -87,7 +87,6 @@ class DynamicEntry:
         self.value = None
 
     def _interpret_content(self):
-        print(self.d_tag)
         self.value = _parse_entry_content(
             self.d_tag, self.content, self.file, self.parent
         )
@@ -115,7 +114,7 @@ class Dynamic:
             if entry.d_tag==tag:
                 return entry
     def _read_one_entry(self):
-        if self.arch == ARCH_64:
+        if self.arch == ARCH.ARCH_64:
             d_tag = endian_read(self.buf, self.endian, 8)  # 64_Xword
             d_un = endian_read(self.buf, self.endian, 8)  # 64_Addr
         else:

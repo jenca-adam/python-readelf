@@ -1,6 +1,5 @@
 from io import BytesIO
-from ..const import ARCH_32, ARCH_64, SHN_INDEX, SHN_OS, SHN_PROC, SHN_RESERVE
-from ..maps import SHN_MAP
+from ..const import * 
 from ..helpers import endian_read
 
 SHN_LORESERVE = 0xFF00
@@ -12,14 +11,8 @@ SHN_HIOS = 0xFF3F
 
 
 def _get_shndx_const(shndx):
-    if shndx in SHN_MAP:
-        return SHN_MAP[shndx].__class__(shndx)
-    elif SHN_LOPROC <= shndx <= SHN_HIPROC:
-        return SHN_PROC.__class__(shndx)
-    elif SHN_LOOS <= shndx <= SHN_HIOS:
-        return SHN_OS.__class__(shndx)
-    elif SHN_LORESERVE <= shndx <= SHN_HIRESERVE:
-        return SHN_RESERVE.__class__(shndx)
+    if shndx in SHN:
+        return SHN(shndx)
     else:
         return shndx
 
@@ -62,7 +55,7 @@ class SymTab:
         self.file = file
         self.arch = file.arch
         self.endian = file.endian
-        self._is_arch_64 = self.arch == ARCH_64
+        self._is_arch_64 = self.arch == ARCH.ARCH_64
         self._name_size = 4
         self._size_size = self._value_size = 8 if self._is_arch_64 else 4
         self._shndx_size = 2

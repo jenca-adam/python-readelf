@@ -2,9 +2,9 @@ from .const import *
 
 
 def endian_read(buf, endian, n):
-    if endian == ENDIAN_BIG:
+    if endian == ENDIAN.ENDIAN_BIG:
         e = "big"
-    elif endian == ENDIAN_LITTLE:
+    elif endian == ENDIAN.ENDIAN_LITTLE:
         e = "little"
     else:
         raise ValueError("Bad endian")
@@ -13,7 +13,7 @@ def endian_read(buf, endian, n):
 
 def map_public_attributes(src, dest):
     for name in dir(src):
-        if name.startswith("__"):  # don't copy dunders over except __repr__
+        if name.startswith("__"):  # don't copy dunders over
             continue
 
         dest.__setattr__(name, getattr(src, name))

@@ -1,4 +1,5 @@
-from . import dynamic, dynstr, dynsym, strtab, symtab
+from . import dynamic,  dynsym, strtab, symtab
+from ..const import SHT
 
 
 class UnknownSection:
@@ -7,16 +8,13 @@ class UnknownSection:
         self.file = file
 
 
-NAME_TO_PARSER_MAPPING = {
-    ".dynamic": dynamic.Dynamic,
-    ".dynstr": dynstr.DynStrTab,
-    ".dynsym": dynsym.DynSymTab,
-    ".strtab": strtab.StrTab,
-    ".shstrtab": strtab.StrTab,
-    ".symtab": symtab.SymTab,
+SECTION_TO_PARSER_MAPPING = {
+    (SHT.SHT_DYNAMIC): dynamic.Dynamic,
+    (SHT.SHT_DYNSYM): dynsym.DynSymTab,
+    (SHT.SHT_STRTAB): strtab.StrTab,
+    (SHT.SHT_SYMTAB): symtab.SymTab,
 }
 
 
-def parse_content(name, content, file):
-    print(name)
-    return NAME_TO_PARSER_MAPPING.get(name, UnknownSection)(content, file)
+def parse_content(sht, content, file):
+    return SECTION_TO_PARSER_MAPPING.get(sht, UnknownSection)(content, file)

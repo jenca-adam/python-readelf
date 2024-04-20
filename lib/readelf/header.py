@@ -28,30 +28,30 @@ def parse_header(buf):
     arch = ord(buf.read(1))
     if arch not in (1, 2):
         raise ParseError(f"Invalid EI_CLASS {arch}!")
-    output["arch"] = arch = ARCH_MAP[arch]
-    ADDR_SIZE = 4 if arch == ARCH_32 else 8
+    output["arch"] = arch = ARCH(arch)
+    ADDR_SIZE = 4 if arch == ARCH.ARCH_32 else 8
 
     endian = ord(buf.read(1))
     if endian not in (1, 2):
         raise ParseError(f"Invalid EI_DATA {endian}!")
-    output["endian"] = endian = ENDIAN_MAP[endian]
+    output["endian"] = endian = ENDIAN(endian)
 
     version = ord(buf.read(1))
 
     if version != 1:
         raise ParseError(f"EI_VER should be 1, got {version}")
-    output["version"] = EI_VER_1
+    output["version"] = EI_VER(version)
 
     abi = ord(buf.read(1))
-    if abi not in ABI_MAP:
+    if abi not in ABI:
         raise ParseError(f"Invalid EI_OSABI {hex(abi)}!")
-    output["abi"] = ABI_MAP[abi]
+    output["abi"] = ABI(abi)
 
     buf.read(8)  # ignore ABI_VERSION for now
 
     et = endian_read(buf, endian, 2)
-    if et in ET_MAP:
-        e_type = ET_MAP[et]
+    if et in ET:
+        e_type = ET(et)
     elif ET_LOOS <= et <= ET_HIOS:
         e_type = ET_OS
     elif ET_LOPROC <= et <= ET_HIPROC:
@@ -63,12 +63,12 @@ def parse_header(buf):
 
     isa_int = endian_read(buf, endian, 2)
 
-    if isa_int in ISA_MAP:
-        isa = ISA_MAP[isa_int]
+    if isa_int in ISA:
+        isa = ISA(isa_int)
     else:
         for rng in RESERVED_ISA_RANGES:
             if isa_int in rng:
-                isa = ISA_RESERVED
+                isa = ISA.ISA_RESERVED
         else:
             raise ParseError(f"Unknown ISA {hex(isa_int)}")
     output["isa"] = isa
@@ -111,7 +111,7 @@ def parse_header(buf):
 
 
 def parse_program_header(buf, phoff, ph_size, ph_num, endian, arch):
-    ADDR_SIZE = 4 if arch == ARCH_32 else 8
+    ADDR_SIZE = 4 if arch == ARCH.ARCH_32 else 8
     buf.seek(phoff)
 
     segm = []
@@ -121,22 +121,22 @@ def parse_program_header(buf, phoff, ph_size, ph_num, endian, arch):
 
         p_type_int = endian_read(buf, endian, 4)
         if PT_LOOS <= p_type_int <= PT_HIOS:
-            p_type = PT_OS
+            p_type = PT.PT_OS
         elif PT_LOPROC <= p_type_int <= PT_HIPROC:
-            p_type = PT_PROC
-        elif p_type_int not in PT_MAP:
+            p_type = PT.PT_PROC
+        elif p_type_int not in PT:
             raise ParseError(f"invalid p_type {hex(p_type)}")
         else:
-            p_type = PT_MAP[p_type_int]
+            p_type = PT(p_type_int)
         r["type"] = p_type
-        if arch == ARCH_64:
+        if arch == ARCH.ARCH_64:
             r["flags"] = endian_read(buf, endian, 4)
         r["offset"] = offset = endian_read(buf, endian, ADDR_SIZE)
         r["vaddr"] = vaddr = endian_read(buf, endian, ADDR_SIZE)
         r["paddr"] = endian_read(buf, endian, ADDR_SIZE)  # irrelevant
         r["filesz"] = endian_read(buf, endian, ADDR_SIZE)
         r["memsz"] = endian_read(buf, endian, ADDR_SIZE)
-        if arch == ARCH_32:
+        if arch == ARCH.ARCH_32:
             r["flags"] = endian_read(buf, endian, 4)
         align = endian_read(buf, endian, ADDR_SIZE)
         if align > 1:
@@ -153,7 +153,7 @@ def parse_program_header(buf, phoff, ph_size, ph_num, endian, arch):
 
 
 def parse_section_header(buf, shoff, sh_size, sh_num, endian, arch):
-    ADDR_SIZE = 4 if arch == ARCH_32 else 8
+    ADDR_SIZE = 4 if arch == ARCH.ARCH_32 else 8
     buf.seek(shoff)
     sections = []
 
@@ -162,16 +162,16 @@ def parse_section_header(buf, shoff, sh_size, sh_num, endian, arch):
         s["name"] = endian_read(buf, endian, 4)
         sh_type = endian_read(buf, endian, 4)
         if sh_type > SHT_LOOS:
-            s["type"] = SHT_OS
-        elif sh_type not in SHT_MAP:
+            s["type"] = SHT.SHT_OS
+        elif sh_type not in SHT:
             raise ParseError(f"invalid sh_type: {sh_type:#x}")
         else:
-            s["type"] = SHT_MAP[sh_type]
+            s["type"] = SHT(sh_type)
         sh_flags = endian_read(buf, endian, ADDR_SIZE)
         f = set()
-        for flag, name in SHF_MAP.items():
-            if flag & sh_flags:
-                f.add(name)
+        for flag in SHF:
+            if flag.value & sh_flags:
+                f.add(flag)
         s["flags"] = f
         s["addr"] = endian_read(buf, endian, ADDR_SIZE)
         s["offset"] = endian_read(buf, endian, ADDR_SIZE)
