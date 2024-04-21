@@ -1,4 +1,4 @@
-from . import dynamic,  dynsym, strtab, symtab
+from . import dynamic, dynsym, strtab, symtab
 from ..const import SHT
 
 

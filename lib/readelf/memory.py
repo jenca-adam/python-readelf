@@ -8,15 +8,17 @@ class Memory:
 
     def seek(self, addr):
         self.index = addr
+
     def get_section(self):
         for addr, (_, section) in self.items.items():
-            if addr<=self.index<=addr+section.size:
+            if addr <= self.index <= addr + section.size:
                 return section
+
     def read(self, n):
         right_bound = self.index + n
         print(self.index, right_bound)
         output = bytearray(n)
-        for addr, (content,_) in self.items.items():
+        for addr, (content, _) in self.items.items():
             start = max(addr - self.index, 0)
             if start > n or addr + len(content) < self.index:
                 continue

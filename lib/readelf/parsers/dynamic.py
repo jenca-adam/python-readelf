@@ -1,6 +1,6 @@
 from ..maps import DT_D_VAL, DT_D_PTR
 from ..const import *
-from ..helpers import endian_read
+from ..helpers import endian_read, split_array
 from io import BytesIO
 import functools
 
@@ -19,17 +19,40 @@ def _add_dyn_interpreter(value):
     return _add_dyn_interpreter_inner
 
 
+def _parse_array(sizetag, itemsize=None):
+    def _decorator(func):
+        @functools.wraps(func)
+        def _inner(content, file, parent):
+            file.memory.seek(content)
+            data = file.memory.read(parent.find_entry(sizetag).content)
+            if itemsize is None:
+                return file._split_array(data)
+            return split_array(data, itemsize, file.endian)
+
+        return _inner
+
+    return _decorator
+
+
+def _parse_strtab_array(sizetag):
+    pass
+
+
 ##
 
 
-@_add_dyn_interpreter(DT.DT_NEEDED)
 @_add_dyn_interpreter(DT.DT_SONAME)
+@_add_dyn_interpreter(DT.DT_RPATH)
 @_add_dyn_interpreter(DT.DT_RUNPATH)
-@_add_dyn_interpreter(DT.DT_AUXILIARY)
 @_add_dyn_interpreter(DT.DT_SUNW_AUXILIARY)
 @_add_dyn_interpreter(DT.DT_SUNW_FILTER)
-def _dyn_interpret_in_dynstr(content, file, *_):
-    dynstr = file.find_section(".dynstr")
+@_add_dyn_interpreter(DT.DT_AUXILIARY)
+@_add_dyn_interpreter(DT.DT_FILTER)
+@_add_dyn_interpreter(DT.DT_CONFIG)
+@_add_dyn_interpreter(DT.DT_DEPAUDIT)
+@_add_dyn_interpreter(DT.DT_AUDIT)
+def _dyn_interpret_in_dynstr(content, file, parent):
+    dynstr = file.find_at_addr(parent.find_entry(DT.DT_STRTAB).content)
     return dynstr.get_name(content)
 
 
@@ -49,10 +72,24 @@ def _dyn_interpret_section(content, file, *_):
     except LookupError:
         return content
 
+
 @_add_dyn_interpreter(DT.DT_INIT_ARRAY)
 def _dyn_interpret_init_array(content, file, parent):
     file.memory.seek(content)
     return file.memory.read(parent.find_entry(DT.DT_INIT_ARRAYSZ).content)
+
+
+@_add_dyn_interpreter(DT.DT_FINI_ARRAY)
+def _dyn_interpret_fini_array(content, file, parent):
+    file.memory.seek(content)
+    return file.memory.read(parent.find_entry(DT.DT_FINI_ARRAYSZ).content)
+
+
+@_add_dyn_interpreter(DT.DT_PREINIT_ARRAY)
+def _dyn_interpret_preinit_array(content, file, parent):
+    file.memory.seek(content)
+    return file.memory.read(parent.find_entry(DT.DT_PREINIT_ARRAYSZ).content)
+
 
 ##
 
@@ -109,10 +146,12 @@ class Dynamic:
             self.entries.append(DynamicEntry(d_tag, d_un, file, self))
             if offset >= self._size:
                 break
-    def find_entry(self,tag):
+
+    def find_entry(self, tag):
         for entry in self.entries:
-            if entry.d_tag==tag:
+            if entry.d_tag == tag:
                 return entry
+
     def _read_one_entry(self):
         if self.arch == ARCH.ARCH_64:
             d_tag = endian_read(self.buf, self.endian, 8)  # 64_Xword

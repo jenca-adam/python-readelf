@@ -1,6 +1,7 @@
 from .header import parse_header, parse_section_header, parse_program_header
 from .const import *
 from .err import *
+from .helpers import split_array
 from .sections import Section
 from .segments import ProgramSegments
 from .memory import Memory
@@ -11,8 +12,10 @@ class ELFFile:
         self.sec_dicts = sec_dicts
         self.meta = meta
         self.__dict__.update(self.meta)
+        self.address_size = 8 if self.arch == ARCH.ARCH_64 else 4
         self.sections = []
         self.buf = buf
+
         self.memory = Memory()
         if sh_str_index is None:
             self.strtab = None
@@ -56,6 +59,9 @@ class ELFFile:
 
     def find_section(self, name):
         return self.find_sections(name)[0]
+
+    def _split_array(self, data):
+        return split_array(data, self.address_size, self.endian)
 
     def find_at_offset(self, offset):
         for section in self.sections:
