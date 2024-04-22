@@ -26,17 +26,23 @@ def _parse_array(sizetag, itemsize=None):
             file.memory.seek(content)
             data = file.memory.read(parent.find_entry(sizetag).content)
             if itemsize is None:
-                return file._split_array(data)
-            return split_array(data, itemsize, file.endian)
-
+                array = file._split_array(data)
+            else:
+                array = split_array(data, itemsize, file.endian)
+            return func(array)
         return _inner
 
     return _decorator
 
 
-def _parse_strtab_array(sizetag):
-    pass
-
+def _strtab_parse():
+    def _decorator(func):
+        @functools.wraps(func)
+        def _inner(content, file, parent):
+            arr=func(content,file,parent)
+            dynstr = file.find_at_addr(parent.find_entry(DT.DT_STRTAB).content)
+            return [dynstr.get_name(i) for i in arr]
+        return _inner
 
 ##
 
@@ -51,6 +57,7 @@ def _parse_strtab_array(sizetag):
 @_add_dyn_interpreter(DT.DT_CONFIG)
 @_add_dyn_interpreter(DT.DT_DEPAUDIT)
 @_add_dyn_interpreter(DT.DT_AUDIT)
+@_add_dyn_interpreter(DT.DT_NEEDED)
 def _dyn_interpret_in_dynstr(content, file, parent):
     dynstr = file.find_at_addr(parent.find_entry(DT.DT_STRTAB).content)
     return dynstr.get_name(content)
@@ -74,22 +81,19 @@ def _dyn_interpret_section(content, file, *_):
 
 
 @_add_dyn_interpreter(DT.DT_INIT_ARRAY)
-def _dyn_interpret_init_array(content, file, parent):
-    file.memory.seek(content)
-    return file.memory.read(parent.find_entry(DT.DT_INIT_ARRAYSZ).content)
-
+@_parse_array(DT.DT_INIT_ARRAYSZ)
+def _dyn_interpret_init_array(array):
+    return array
 
 @_add_dyn_interpreter(DT.DT_FINI_ARRAY)
-def _dyn_interpret_fini_array(content, file, parent):
-    file.memory.seek(content)
-    return file.memory.read(parent.find_entry(DT.DT_FINI_ARRAYSZ).content)
-
+@_parse_array(DT.DT_FINI_ARRAYSZ)
+def _dyn_interpret_fini_array(array):
+    return array
 
 @_add_dyn_interpreter(DT.DT_PREINIT_ARRAY)
-def _dyn_interpret_preinit_array(content, file, parent):
-    file.memory.seek(content)
-    return file.memory.read(parent.find_entry(DT.DT_PREINIT_ARRAYSZ).content)
-
+@_parse_array(DT.DT_PREINIT_ARRAYSZ)
+def _dyn_interpret_preinit_array(array):
+    return array
 
 ##
 
