@@ -1,4 +1,4 @@
-from . import dynamic, dynsym, strtab, symtab
+from . import dynamic, dynsym, strtab, symtab, rel
 from ..const import SHT
 
 
@@ -13,6 +13,7 @@ SECTION_TO_PARSER_MAPPING = {
     (SHT.SHT_DYNSYM): dynsym.DynSymTab,
     (SHT.SHT_STRTAB): strtab.StrTab,
     (SHT.SHT_SYMTAB): symtab.SymTab,
+    (SHT.SHT_REL): rel.Rel
 }
 
 
