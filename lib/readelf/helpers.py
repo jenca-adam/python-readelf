@@ -2,18 +2,18 @@ from .const import *
 import math
 
 
-def endian_read(buf, endian, n):
-    return endian_parse(buf.read(n), endian)
+def endian_read(buf, endian, n, **kwargs):
+    return endian_parse(buf.read(n), endian, **kwargs)
 
 
-def endian_parse(data, endian):
+def endian_parse(data, endian, **kwargs):
     if endian == ENDIAN.ENDIAN_BIG:
         e = "big"
     elif endian == ENDIAN.ENDIAN_LITTLE:
         e = "little"
     else:
         raise ValueError("Bad endian")
-    return int.from_bytes(data, e)
+    return int.from_bytes(data, e, **kwargs)
 
 
 def split_array(data, chunk_size, endian):
