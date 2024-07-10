@@ -58,7 +58,10 @@ class ELFFile:
         return tuple(q for q in self.sections if q.name == name)
 
     def find_section(self, name):
-        return self.find_sections(name)[0]
+        sec = self.find_sections(name)
+        if not sec:
+            raise LookupError(f"No {name} section found")
+        return sec[0]
 
     def _split_array(self, data):
         return split_array(data, self.address_size, self.endian)

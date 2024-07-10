@@ -30,6 +30,7 @@ def _parse_array(sizetag, itemsize=None):
             else:
                 array = split_array(data, itemsize, file.endian)
             return func(array)
+
         return _inner
 
     return _decorator
@@ -39,10 +40,12 @@ def _strtab_parse():
     def _decorator(func):
         @functools.wraps(func)
         def _inner(content, file, parent):
-            arr=func(content,file,parent)
+            arr = func(content, file, parent)
             dynstr = file.find_at_addr(parent.find_entry(DT.DT_STRTAB).content)
             return [dynstr.get_name(i) for i in arr]
+
         return _inner
+
 
 ##
 
@@ -85,15 +88,18 @@ def _dyn_interpret_section(content, file, *_):
 def _dyn_interpret_init_array(array):
     return array
 
+
 @_add_dyn_interpreter(DT.DT_FINI_ARRAY)
 @_parse_array(DT.DT_FINI_ARRAYSZ)
 def _dyn_interpret_fini_array(array):
     return array
 
+
 @_add_dyn_interpreter(DT.DT_PREINIT_ARRAY)
 @_parse_array(DT.DT_PREINIT_ARRAYSZ)
 def _dyn_interpret_preinit_array(array):
     return array
+
 
 ##
 

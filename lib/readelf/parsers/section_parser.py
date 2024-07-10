@@ -14,7 +14,7 @@ SECTION_TO_PARSER_MAPPING = {
     (SHT.SHT_STRTAB): strtab.StrTab,
     (SHT.SHT_SYMTAB): symtab.SymTab,
     (SHT.SHT_REL): rel.Rel,
-    (SHT.SHT_RELA): rela.Rela
+    (SHT.SHT_RELA): rela.Rela,
 }
 
 

@@ -10,13 +10,15 @@ class Memory:
         self.index = addr
 
     def get_section(self):
+        return self[self.index]
+
+    def __getitem__(self, taddr):
         for addr, (_, section) in self.items.items():
-            if addr <= self.index <= addr + section.size:
+            if addr <= taddr <= addr + section.size:
                 return section
 
     def read(self, n):
         right_bound = self.index + n
-        print(self.index, right_bound)
         output = bytearray(n)
         for addr, (content, _) in self.items.items():
             start = max(addr - self.index, 0)
