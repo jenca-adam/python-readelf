@@ -375,7 +375,7 @@ Returns `None` if no such section could be found.
 
 ### Extracting symbols
 
-```
+```python
 >>> python = readelf.readelf("/usr/lib/libpython3.12.so")
 >>> dynsym = python.find_section_by_type(elfparser.const.SHT.SHT_DYNSYM) # or find_section(".dynsym")
 >>> sym = dynsym.get_symbol("PyExc_ValueError")
