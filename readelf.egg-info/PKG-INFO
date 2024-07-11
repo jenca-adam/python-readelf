@@ -1,3 +1,21 @@
+Metadata-Version: 2.1
+Name: readelf
+Version: 1.0.1
+Summary: An ELF file reading library made in Python
+Author-email: Adam Jenca <jenca.a@gjh.sk>
+Project-URL: Homepage, https://github.com/jenca-adam/python-readelf
+Project-URL: Issues, https://github.com/jenca-adam/python-readelf/issues
+Project-URL: GitHub, https://github.com/jenca-adam/python-readelf
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: File Formats
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Development Status :: 3 - Alpha
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
 # python-readelf
 `python-readelf` is an ELF file reading library.
 
