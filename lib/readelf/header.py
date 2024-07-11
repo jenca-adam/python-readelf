@@ -76,7 +76,6 @@ def parse_header(buf):
     e_version = endian_read(buf, endian, 4)
     if e_version != 1:
         raise ParseError(f"e_version should be 1, got {e_version}")
-    
 
     entry_point = endian_read(buf, endian, ADDR_SIZE)
     output["entry"] = entry_point

@@ -3,7 +3,7 @@ from ..const import SHT
 
 
 class UnknownSection:
-    def __init__(self, content, file):
+    def __init__(self, content, file, *_):
         self.content = content
         self.file = file
 
@@ -18,5 +18,5 @@ SECTION_TO_PARSER_MAPPING = {
 }
 
 
-def parse_content(sht, content, file):
-    return SECTION_TO_PARSER_MAPPING.get(sht, UnknownSection)(content, file)
+def parse_content(sht, content, file, sd):
+    return SECTION_TO_PARSER_MAPPING.get(sht, UnknownSection)(content, file, sd)

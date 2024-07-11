@@ -5,7 +5,7 @@ from .helpers import map_public_attributes
 
 class Section:
     def __init__(self, sec_dict, sections, buf, is_str_tab=False):
-        self.sections = sections
+        self.file = sections
         self.is_str_tab = is_str_tab
         self.sec_dict = sec_dict
         self.flags = sec_dict["flags"]
@@ -19,7 +19,9 @@ class Section:
         self.entsize = sec_dict["entsize"]
         buf.seek(self.offset)
         self.content = buf.read(self.size)
-        self.parsed_content = parse_content(self.type, self.content, self.sections)
+        self.parsed_content = parse_content(
+            self.type, self.content, self.file, sec_dict
+        )
         map_public_attributes(self.parsed_content, self)
 
     def __repr__(self):
@@ -32,4 +34,4 @@ class Section:
     def name(self):
         if self.is_str_tab:
             return ".shstrtab"
-        return self.sections.strtab.get_name(self.sec_dict["name"])
+        return self.file.strtab.get_name(self.sec_dict["name"])

@@ -63,6 +63,15 @@ class ELFFile:
             raise LookupError(f"No {name} section found")
         return sec[0]
 
+    def find_sections_by_type(self, sectype):
+        return tuple(q for q in self.sections if q.type == sectype)
+
+    def find_section_by_type(self, sectype):
+        sec = self.find_sections_by_type(sectype)
+        if not sec:
+            raise LookupError(f"No section with the type {sectype} found")
+        return sec[0]
+
     def _split_array(self, data):
         return split_array(data, self.address_size, self.endian)
 

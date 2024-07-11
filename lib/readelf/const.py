@@ -286,3 +286,34 @@ class DT(enum.Enum, metaclass=ContainsEnum):
     DT_USED = 0x7FFFFFFE
     DT_FILTER = 0x7FFFFFFF
     DT_PROC = 0xFFFFFFFD
+
+
+class STB(enum.Enum, metaclass=ContainsEnum):
+    STB_LOCAL = 0
+    STB_GLOBAL = 1
+    STB_WEAK = 2
+    STB_OS = 10
+    STB_PROC = 13
+
+
+class STT(enum.Enum, metaclass=ContainsEnum):
+    STT_NOTYPE = 0
+    STT_OBJECT = 1
+    STT_FUNC = 2
+    STT_SECTION = 3
+    STT_FILE = 4
+    STT_COMMON = 5
+    STT_TLS = 6
+    STT_OS = 11
+    STT_SPARC_REGISTER = 13
+    STT_PROC = 14
+
+
+class STV(enum.Enum, metaclass=ContainsEnum):
+    STV_DEFAULT = 0
+    STV_INTERNAL = 1
+    STV_HIDDEN = 2
+    STV_PROTECTED = 3
+    STV_EXPORTED = 4
+    STV_SINGLETON = 5
+    STV_ELIMINATE = 6

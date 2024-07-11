@@ -143,7 +143,7 @@ class DynamicEntry:
 
 
 class Dynamic:
-    def __init__(self, content, file):
+    def __init__(self, content, file, *_):
         self.content = content
         self.file = file
         self.buf = BytesIO(self.content)

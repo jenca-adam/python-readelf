@@ -8,6 +8,14 @@ SHN_LOPROC = 0xFF00
 SHN_HIPROC = 0xFF1F
 SHN_LOOS = 0xFF20
 SHN_HIOS = 0xFF3F
+STB_LOPROC = 13
+STB_HIPROC = 15
+STB_LOOS = 10
+STB_HIOS = 12
+STT_LOOS = 10
+STT_HIOS = 12
+STT_LOPROC = 13
+STT_HIPROC = 15
 
 
 def _get_shndx_const(shndx):
@@ -29,7 +37,20 @@ class Sym:
         self.file = file
         self.bind = self._info >> 4  # enum
         self.type = self._info & 0xF  # enum
-        self.visibility = self._other & 0x3  # enum
+        self.visibility = STV(self._other & 0x3)  # enum
+        if STB_LOOS <= self.bind <= STB_HIOS:
+            self.bind = STB.STB_OS
+        elif STB_LOPROC <= self.bind <= STB_HIPROC:
+            self.bind = STB.STB_PROC
+        else:
+            self.bind = STB(self.bind)
+
+        if STT_LOOS <= self.type <= STT_HIOS:
+            self.type = STT.STT_OS
+        elif STT_LOPROC <= self.type <= STT_HIPROC:
+            self.type = STT.STT_PROC
+        else:
+            self.type = STT(self.type)
 
     def _load_name(self, dynstr):
         self.name = dynstr.get_name(self._name)
@@ -44,13 +65,13 @@ class Sym:
             self.value = b""
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} {self.name} ({self.shndx}@{self._value:x}+{self.size})>"
+        return f"<{self.__class__.__name__} [{self.type.name}] {self.name} ({self.shndx}@{self._value:x}+{self.size})>"
 
 
 class SymTab:
     __sym_class = Sym
 
-    def __init__(self, content, file):
+    def __init__(self, content, file, *_):
         self.buf = BytesIO(content)
         self.file = file
         self.arch = file.arch

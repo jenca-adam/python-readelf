@@ -2,7 +2,7 @@ import io
 
 
 class StrTab:
-    def __init__(self, content, file):
+    def __init__(self, content, file, *_):
         self.content = content
         self.stream = io.BytesIO(self.content)
         self.strings = [string.decode("ascii") for string in content[1:].split(b"\x00")]
