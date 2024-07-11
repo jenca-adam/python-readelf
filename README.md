@@ -3,7 +3,7 @@
 
 ## Installation
 
-Not pypi yet. Install from the github repo.
+Not on pypi yet. Install from the github repo.
 
 ## Documentation
 
