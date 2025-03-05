@@ -1,6 +1,6 @@
 import io
 from ..helpers import endian_read
-from ..const import *
+from ..const import ARCH
 
 
 class RelaEntry:

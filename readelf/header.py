@@ -29,7 +29,7 @@ def parse_header(buf):
     if arch not in (1, 2):
         raise ParseError(f"Invalid EI_CLASS {arch}!")
     output["arch"] = arch = ARCH(arch)
-    ADDR_SIZE = 4 if arch == ARCH.ARCH_32 else 8
+    addr_size = 4 if arch == ARCH.ARCH_32 else 8
 
     endian = ord(buf.read(1))
     if endian not in (1, 2):
@@ -52,10 +52,10 @@ def parse_header(buf):
     et = endian_read(buf, endian, 2)
     if et in ET:
         e_type = ET(et)
-    elif ET_LOOS <= et <= ET_HIOS:
-        e_type = ET_OS
-    elif ET_LOPROC <= et <= ET_HIPROC:
-        e_type = ET_PROC
+    elif ET.ET_LOOS <= et <= ET.ET_HIOS:
+        e_type = ET.ET_OS
+    elif ET.ET_LOPROC <= et <= ET.ET_HIPROC:
+        e_type = ET.ET_PROC
     else:
         raise ParseError(f"Invalid e_type {hex(et)}")
     output["type"] = e_type
@@ -77,13 +77,13 @@ def parse_header(buf):
     if e_version != 1:
         raise ParseError(f"e_version should be 1, got {e_version}")
 
-    entry_point = endian_read(buf, endian, ADDR_SIZE)
+    entry_point = endian_read(buf, endian, addr_size)
     output["entry"] = entry_point
 
-    phoff = endian_read(buf, endian, ADDR_SIZE)
+    phoff = endian_read(buf, endian, addr_size)
     output["phoff"] = phoff
 
-    shoff = endian_read(buf, endian, ADDR_SIZE)
+    shoff = endian_read(buf, endian, addr_size)
     output["shoff"] = shoff
 
     flags = endian_read(buf, endian, 4)
@@ -110,7 +110,7 @@ def parse_header(buf):
 
 
 def parse_program_header(buf, phoff, ph_size, ph_num, endian, arch):
-    ADDR_SIZE = 4 if arch == ARCH.ARCH_32 else 8
+    addr_size = 4 if arch == ARCH.ARCH_32 else 8
     buf.seek(phoff)
 
     segm = []
@@ -130,14 +130,14 @@ def parse_program_header(buf, phoff, ph_size, ph_num, endian, arch):
         r["type"] = p_type
         if arch == ARCH.ARCH_64:
             r["flags"] = endian_read(buf, endian, 4)
-        r["offset"] = offset = endian_read(buf, endian, ADDR_SIZE)
-        r["vaddr"] = vaddr = endian_read(buf, endian, ADDR_SIZE)
-        r["paddr"] = endian_read(buf, endian, ADDR_SIZE)  # irrelevant
-        r["filesz"] = endian_read(buf, endian, ADDR_SIZE)
-        r["memsz"] = endian_read(buf, endian, ADDR_SIZE)
+        r["offset"] = offset = endian_read(buf, endian, addr_size)
+        r["vaddr"] = vaddr = endian_read(buf, endian, addr_size)
+        r["paddr"] = endian_read(buf, endian, addr_size)  # irrelevant
+        r["filesz"] = endian_read(buf, endian, addr_size)
+        r["memsz"] = endian_read(buf, endian, addr_size)
         if arch == ARCH.ARCH_32:
             r["flags"] = endian_read(buf, endian, 4)
-        align = endian_read(buf, endian, ADDR_SIZE)
+        align = endian_read(buf, endian, addr_size)
         if align > 1:
             if math.log(align, 2) % 1 != 0:
                 raise ParseError("Wrong p_align: should be 0 or power of 2.")
@@ -147,12 +147,12 @@ def parse_program_header(buf, phoff, ph_size, ph_num, endian, arch):
                 )
         r["align"] = align
         segm.append(r)
-        buf.read(ph_size - (6 * ADDR_SIZE + 8))  # ignore the rest
+        buf.read(ph_size - (6 * addr_size + 8))  # ignore the rest
     return segm
 
 
 def parse_section_header(buf, shoff, sh_size, sh_num, endian, arch):
-    ADDR_SIZE = 4 if arch == ARCH.ARCH_32 else 8
+    addr_size = 4 if arch == ARCH.ARCH_32 else 8
     buf.seek(shoff)
     sections = []
 
@@ -166,19 +166,19 @@ def parse_section_header(buf, shoff, sh_size, sh_num, endian, arch):
             raise ParseError(f"invalid sh_type: {sh_type:#x}")
         else:
             s["type"] = SHT(sh_type)
-        sh_flags = endian_read(buf, endian, ADDR_SIZE)
+        sh_flags = endian_read(buf, endian, addr_size)
         f = set()
         for flag in SHF:
             if flag.value & sh_flags:
                 f.add(flag)
         s["flags"] = f
-        s["addr"] = endian_read(buf, endian, ADDR_SIZE)
-        s["offset"] = endian_read(buf, endian, ADDR_SIZE)
-        s["size"] = endian_read(buf, endian, ADDR_SIZE)
+        s["addr"] = endian_read(buf, endian, addr_size)
+        s["offset"] = endian_read(buf, endian, addr_size)
+        s["size"] = endian_read(buf, endian, addr_size)
         s["link"] = endian_read(buf, endian, 4)
         s["info"] = endian_read(buf, endian, 4)
-        s["addralign"] = endian_read(buf, endian, ADDR_SIZE)
-        s["entsize"] = endian_read(buf, endian, ADDR_SIZE)
+        s["addralign"] = endian_read(buf, endian, addr_size)
+        s["entsize"] = endian_read(buf, endian, addr_size)
         sections.append(s)
 
     return sections

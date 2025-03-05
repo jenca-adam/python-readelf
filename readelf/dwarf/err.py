@@ -1,0 +1,2 @@
+class DWARFError(Exception):
+    pass

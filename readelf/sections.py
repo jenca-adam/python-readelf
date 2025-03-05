@@ -20,7 +20,7 @@ class Section:
         buf.seek(self.offset)
         self.content = buf.read(self.size)
         self.parsed_content = parse_content(
-            self.type, self.content, self.file, sec_dict
+            self.type, self.content, self.file, self.flags, sec_dict
         )
         map_public_attributes(self.parsed_content, self)
 

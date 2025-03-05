@@ -20,6 +20,7 @@ class ProgramSegment:
         self.__dict__.update(segment)
         self.segment = segment
         self.file = file
+        self.type = segment["type"]
         self.flags = ProgramSegmentFlags(segment["flags"])
         self.readable = self.flags.readable
         self.writable = self.flags.writable

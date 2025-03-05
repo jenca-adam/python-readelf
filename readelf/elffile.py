@@ -5,6 +5,7 @@ from .helpers import split_array
 from .sections import Section
 from .segments import ProgramSegments
 from .memory import Memory
+from .dwarf import DWARF
 
 
 class ELFFile:
@@ -12,6 +13,8 @@ class ELFFile:
         self.sec_dicts = sec_dicts
         self.meta = meta
         self.__dict__.update(self.meta)
+        self.endian = self.meta["endian"]
+        self.arch = self.meta["arch"]
         self.address_size = 8 if self.arch == ARCH.ARCH_64 else 4
         self.sections = []
         self.buf = buf
@@ -50,6 +53,9 @@ class ELFFile:
             if hasattr(section, "_after_init"):
                 section._after_init()
         self.close()
+
+    def get_dwarf(self):
+        return DWARF(self)
 
     def __getitem__(self, i):
         return self.segments[i]

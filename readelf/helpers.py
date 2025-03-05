@@ -2,8 +2,30 @@ from .const import *
 import math
 
 
+def is_eof(bytes_io):
+    return bytes_io.tell() == len(bytes_io.getbuffer())
+
+
+def extract_sections(
+    elf_file, *sec_names, required=None, errmsg="missing section: {!r}"
+):
+    secs = []
+    for i, sn in enumerate(sec_names):
+        try:
+            secs.append(elf_file.find_section(sn))
+        except LookupError:
+            if required is not None and i in required:
+                raise LookupError(errmsg.format(sn)) from None
+            else:
+                secs.append(None)
+    return secs
+
+
 def endian_read(buf, endian, n, **kwargs):
-    return endian_parse(buf.read(n), endian, **kwargs)
+    read_result = buf.read(n)
+    if len(read_result) < n:
+        raise EOFError("eof while reading integer")
+    return endian_parse(read_result, endian, **kwargs)
 
 
 def endian_parse(data, endian, **kwargs):
@@ -12,7 +34,7 @@ def endian_parse(data, endian, **kwargs):
     elif endian == ENDIAN.ENDIAN_LITTLE:
         e = "little"
     else:
-        raise ValueError("Bad endian")
+        raise ValueError(f"Bad endian: {endian}")
     return int.from_bytes(data, e, **kwargs)
 
 

@@ -1,5 +1,5 @@
 from . import dynamic, dynsym, strtab, symtab, rel, rela
-from ..const import SHT
+from ..const import SHT, SHF
 
 
 class UnknownSection:
@@ -18,5 +18,13 @@ SECTION_TO_PARSER_MAPPING = {
 }
 
 
-def parse_content(sht, content, file, sd):
-    return SECTION_TO_PARSER_MAPPING.get(sht, UnknownSection)(content, file, sd)
+def get_parser_by_flags(flags):
+    if SHF.SHF_STRINGS in flags:
+        return strtab.StrTab
+    return UnknownSection
+
+
+def parse_content(sht, content, file, flags, sd):
+    return SECTION_TO_PARSER_MAPPING.get(sht, get_parser_by_flags(flags))(
+        content, file, sd
+    )
