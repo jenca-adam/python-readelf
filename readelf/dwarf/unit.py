@@ -60,7 +60,7 @@ class CompilationUnit:
         offset = 0
         while offset < self.content_size:
             die = self.die_at_offset(offset)
-            offset+=die.size
+            offset += die.size
             if die.is_sentinel:
                 if not parents:
                     break  # ??
