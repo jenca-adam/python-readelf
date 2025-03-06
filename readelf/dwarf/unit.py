@@ -1,5 +1,5 @@
 import io
-from ..helpers import endian_read
+from ..helpers import endian_read, is_eof
 from ..const import *
 from .err import DWARFError
 from .leb128 import leb128_parse
@@ -24,6 +24,7 @@ class CompilationUnit:
         type_offset,
         section_offset,
         header_size,
+        content_size,
     ):
         self.unit_length = unit_length
         self.arch = arch
@@ -33,32 +34,50 @@ class CompilationUnit:
         self.addr_size = addr_size
         self.dwo_id = dwo_id
         self.content = content
+        self.stream = io.BytesIO(self.content)
         self.parent = parent
         self.type_signature = type_signature
         self.type_offset = type_offset
         self.section_offset = section_offset
         self.header_size = header_size
+        self.content_size = content_size
         self.die_cache = {}
 
     @property
     def abbr_tab(self):
         return self.parent.abbrevs.table_by_offset(self.abbr_offset)
 
-    def get_dies(self, n=None, offset=0):
-        stream = io.BytesIO(self.content)
-        stream.seek(offset)
-        i = 0
-        while stream.tell() < self.unit_length:
-            if i == n:
-                break
-            off = stream.tell()
-            if off not in self.die_cache:
-                die = self.die_cache[off] = DIE.from_stream(stream, self)
-            else:
-                die = self.die_cache[off]
-                stream.seek(off + die.size)
+    def die_at_offset(self, offset):
+        old_seek = self.stream.tell()
+        self.stream.seek(offset)
+        if offset not in self.die_cache:
+            self.die_cache[offset] = DIE.from_stream(self.stream, self)
+        self.stream.seek(old_seek)
+        return self.die_cache[offset]
+
+    def get_dies(self):
+        parents = []  # stack
+        offset = 0
+        while offset < self.content_size:
+            die = self.die_at_offset(offset)
+            offset+=die.size
+            if die.is_sentinel:
+                if not parents:
+                    break  # ??
+                else:
+                    if (
+                        len(parents) == 1
+                    ):  # if sentinel closes a top level die, yield it
+                        yield parents[-1]
+                    parents.pop()  # pop stack
+                    continue
+            if parents:
+                parents[-1].children.append(die)
+                continue
+            if die.has_children:
+                parents.append(die)
+                continue
             yield die
-            i += 1
 
     @classmethod
     def parse(cls, dwarf, stream):
@@ -122,4 +141,5 @@ class CompilationUnit:
             type_offset,
             offset,
             header_end,
+            content_size,
         )
