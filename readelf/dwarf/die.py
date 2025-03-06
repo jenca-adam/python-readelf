@@ -1,6 +1,6 @@
 from .leb128 import leb128_parse
 from .attribs import parse_attrib
-
+import pprint
 
 class DIE:
     def __init__(self, cu, abbr_entry, attrs, size, is_sentinel=False):
@@ -30,7 +30,7 @@ class DIE:
     def __repr__(self):
         if self.is_sentinel:
             return "DIE(SENTINEL)"
-        return f"DIE({self.abbr_entry.tag}, {self.attrs})"
+        return f"DIE({self.abbr_entry.tag}, {pprint.pformat(self.attrs)})"
 
 
 class DIEPtr:
