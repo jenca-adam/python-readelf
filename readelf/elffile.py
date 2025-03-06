@@ -108,7 +108,8 @@ class ELFFile:
         return cls(sec_dicts, buf, meta, sh_str_index)
 
     def close(self):
-        self.buf.close()
+        if self.buf:
+            self.buf.close()
 
 
 def readelf(fname):

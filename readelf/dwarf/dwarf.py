@@ -32,3 +32,9 @@ class DWARF:
         _debug_abbrev = io.BytesIO(self.debug_abbrev.content)
         self.abbrevs = parse_abbr_section(_debug_abbrev)
         print(self.abbrevs.tables)
+
+    def cu_at_offset(self, offset):
+        for unit in self.units:
+            if unit.section_offset <= offset <= unit.section_offset + unit.unit_length:
+                return unit
+        raise LookupError(f"No compilation unit at offset {offset:#x}")

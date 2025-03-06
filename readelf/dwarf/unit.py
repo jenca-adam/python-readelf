@@ -3,10 +3,12 @@ from ..helpers import endian_read
 from ..const import *
 from .err import DWARFError
 from .leb128 import leb128_parse
-from .die import DIE
+from .die import DIE, DIEPtr
 
 
 class CompilationUnit:
+    _dieptrclass = DIEPtr  # UGLY
+
     def __init__(
         self,
         unit_length,
@@ -20,6 +22,8 @@ class CompilationUnit:
         parent,
         type_signature,
         type_offset,
+        section_offset,
+        header_size,
     ):
         self.unit_length = unit_length
         self.arch = arch
@@ -32,14 +36,29 @@ class CompilationUnit:
         self.parent = parent
         self.type_signature = type_signature
         self.type_offset = type_offset
+        self.section_offset = section_offset
+        self.header_size = header_size
+        self.die_cache = {}
 
     @property
     def abbr_tab(self):
         return self.parent.abbrevs.table_by_offset(self.abbr_offset)
 
-    def get_dies(self):
+    def get_dies(self, n=None, offset=0):
         stream = io.BytesIO(self.content)
-        return DIE.from_stream(stream, self)
+        stream.seek(offset)
+        i = 0
+        while stream.tell() < self.unit_length:
+            if i == n:
+                break
+            off = stream.tell()
+            if off not in self.die_cache:
+                die = self.die_cache[off] = DIE.from_stream(stream, self)
+            else:
+                die = self.die_cache[off]
+                stream.seek(off + die.size)
+            yield die
+            i += 1
 
     @classmethod
     def parse(cls, dwarf, stream):
@@ -101,4 +120,6 @@ class CompilationUnit:
             dwarf,
             type_signature,
             type_offset,
+            offset,
+            header_end,
         )
