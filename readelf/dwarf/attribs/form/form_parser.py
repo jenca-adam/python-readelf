@@ -9,7 +9,7 @@ from .const import (
     parse_sdata,
     parse_implicit_const,
 )
-
+from .addr import parse_addr
 FORM_TO_PARSER_MAPPING = {
     DW_FORM.DW_FORM_strp: parse_strp,
     DW_FORM.DW_FORM_line_strp: parse_line_strp,
@@ -21,6 +21,7 @@ FORM_TO_PARSER_MAPPING = {
     DW_FORM.DW_FORM_sdata: parse_sdata,
     DW_FORM.DW_FORM_udata: parse_udata,
     DW_FORM.DW_FORM_implicit_const: parse_implicit_const,
+    DW_FORM.DW_FORM_addr: parse_addr
 }
 
 
