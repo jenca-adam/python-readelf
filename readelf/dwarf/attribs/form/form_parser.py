@@ -22,7 +22,7 @@ from .ref import (
 from .addr import parse_addr
 from .sec_offset import parse_sec_offset
 from .flag import parse_flag, parse_flag_present
-
+from .exprloc import parse_exprloc
 FORM_TO_PARSER_MAPPING = {
     DW_FORM.DW_FORM_strp: parse_strp,
     DW_FORM.DW_FORM_line_strp: parse_line_strp,
@@ -45,6 +45,7 @@ FORM_TO_PARSER_MAPPING = {
     DW_FORM.DW_FORM_ref_addr: parse_ref_addr,
     DW_FORM.DW_FORM_flag: parse_flag,
     DW_FORM.DW_FORM_flag_present: parse_flag_present,
+    DW_FORM.DW_FORM_exprloc: parse_exprloc
 }
 
 
