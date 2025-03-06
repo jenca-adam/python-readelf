@@ -11,9 +11,9 @@ class DIE:
     @classmethod
     def from_stream(cls, stream, cu):
         abbr_code = leb128_parse(stream)
-        abbr_entry = cu.abbr_tab.by_code(abbr_code) 
+        abbr_entry = cu.abbr_tab.by_code(abbr_code)
         attrs = {}
         for attrib in abbr_entry.attributes:
             attr, form = attrib
-            attrs[attr] = parse_attrib(form, stream, cu)
+            attrs[attr] = parse_attrib(attr, form, stream, cu)
         return cls(cu, abbr_entry, attrs)

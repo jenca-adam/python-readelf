@@ -36,6 +36,7 @@ class CompilationUnit:
     @property
     def abbr_tab(self):
         return self.parent.abbrevs.table_by_offset(self.abbr_offset)
+
     def get_dies(self):
         stream = io.BytesIO(self.content)
         return DIE.from_stream(stream, self)

@@ -13,6 +13,7 @@ class DWARF:
             self.debug_line,
             self.debug_loc,
             self.debug_str,
+            self.debug_line_str,
         ) = extract_sections(
             elf_file,
             ".debug_info",
@@ -20,6 +21,7 @@ class DWARF:
             ".debug_line",
             ".debug_loc",
             ".debug_str",
+            ".debug_line_str",
             required=[0, 1],  # should we also require .debug_abbrev?
             errmsg="file has missing debug information: missing section: {!r}",
         )

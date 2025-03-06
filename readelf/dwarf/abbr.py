@@ -125,10 +125,11 @@ class AbbreviationTables:
             if table.offset == offset:
                 return table
         raise DWARFError(f"no abbr table at offset 0x{offset:X}")
-    
+
     def entry_by_cu_and_code(self, cu, code):
         table = table_by_offset(cu.abbr_offset)
         return table.by_code(code)
+
 
 def parse_abbr_section(stream):
     abbrev_tables = []
