@@ -72,6 +72,7 @@ class LnoProgram:
 
     @classmethod
     def parse(cls, dwarf, stream):
+        print(hex(stream.tell()))
         unit_length = endian_read(stream, dwarf.elf_file.endian, 4)
         if unit_length == 0xFFFFFFFF:
             unit_length = endian_read(stream, dwarf.elf_file.endian, 8)
@@ -97,8 +98,9 @@ class LnoProgram:
             0, arch, 5, None, 0, addr_size, None, b"", dwarf, None, 0, 0, 0, 0
         )
         header_length = endian_read(stream, dwarf.elf_file.endian, unit_length_size)
-        prog_offset = stream.tell() + header_length
-        prog_size = unit_length - prog_offset  # right??
+        prog_offset = stream.tell() + header_length + unit_length_size
+        prog_size = unit_length - prog_offset + unit_length_size  # right??
+        print(prog_size, unit_length, prog_offset+prog_size)
         (
             min_instr_length,
             max_op_per_instr,
