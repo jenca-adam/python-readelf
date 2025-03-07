@@ -10,7 +10,23 @@ class ContainsEnum(enum.EnumMeta):
             return cls(value)
         return default
 
+class HasUserMeta(ContainsEnum):
+    def __contains__(cls, value):
+        louser_str, hiuser_str = cls.__name__+"_lo_user", cls.__name__+"_hi_user"
+        louser = getattr(cls, louser_str, None)
+        hiuser = getattr(cls, hiuser_str, None)
+        is_user = louser and hiuser and louser.value<=value<=hiuser.value
+        return is_user or any(value == item.value for item in cls)
 
+    def __call__(cls, val):
+        louser_str, hiuser_str = cls.__name__+"_lo_user", cls.__name__+"_hi_user"
+        louser = getattr(cls, louser_str, None)
+        hiuser = getattr(cls, hiuser_str, None)
+        if louser and hiuser:
+            if louser.value<=val<=hiuser.value:
+                val=louser.value
+        return cls.__new__(cls, val)
+    
 class ARCH(enum.Enum, metaclass=ContainsEnum):
     # archs
     ARCH_32 = 0x1
@@ -326,16 +342,17 @@ class STV(enum.Enum, metaclass=ContainsEnum):
 ## dwarves
 
 
-class DW_UT(enum.Enum, metaclass=ContainsEnum):
+class DW_UT(enum.Enum, metaclass=HasUserMeta):
     DW_UT_compile = 0x01
     DW_UT_type = 0x02
     DW_UT_partial = 0x03
     DW_UT_skeleton = 0x04
     DW_UT_split_compile = 0x05
     DW_UT_split_type = 0x06
+    DW_UT_lo_user = 0x80
+    DW_UT_hi_user = 0xff
 
-
-class DW_TAG(enum.Enum, metaclass=ContainsEnum):
+class DW_TAG(enum.Enum, metaclass=HasUserMeta):
 
     DW_TAG_array_type = 0x01
     DW_TAG_class_type = 0x02
@@ -413,8 +430,11 @@ class DW_TAG(enum.Enum, metaclass=ContainsEnum):
     DW_TAG_skeleton_unit = 0x4A
     DW_TAG_immutable_type = 0x4B
 
+    DW_TAG_lo_user = 0x4080
+    DW_TAG_hi_user = 0xffff
 
-class DW_AT(enum.Enum, metaclass=ContainsEnum):
+
+class DW_AT(enum.Enum, metaclass=HasUserMeta):
     DW_AT_sibling = 0x01
     DW_AT_location = 0x02
     DW_AT_name = 0x03
@@ -553,6 +573,9 @@ class DW_AT(enum.Enum, metaclass=ContainsEnum):
 
     DW_AT_null = 0x00
 
+    DW_AT_lo_user = 0x2000
+    DW_AT_hi_user = 0x3fff
+
 
 class DW_FORM(enum.Enum, metaclass=ContainsEnum):
     DW_FORM_addr = 0x01
@@ -601,7 +624,7 @@ class DW_FORM(enum.Enum, metaclass=ContainsEnum):
     DW_FORM_null = 0x00
 
 
-class DW_LANG(enum.Enum, metaclass=ContainsEnum):
+class DW_LANG(enum.Enum, metaclass=HasUserMeta):
     DW_LANG_C89 = 0x0001
     DW_LANG_C = 0x0002
     DW_LANG_Ada83 = 0x0003
@@ -643,7 +666,7 @@ class DW_LANG(enum.Enum, metaclass=ContainsEnum):
     DW_LANG_hi_user = 0xFFFF
 
 
-class DW_ATE(enum.Enum, metaclass=ContainsEnum):
+class DW_ATE(enum.Enum, metaclass=HasUserMeta):
     DW_ATE_address = 0x01
     DW_ATE_boolean = 0x02
     DW_ATE_complex_float = 0x03
@@ -666,7 +689,7 @@ class DW_ATE(enum.Enum, metaclass=ContainsEnum):
     DW_ATE_hi_user = 0xFF
 
 
-class DW_END(enum.Enum, metaclass=ContainsEnum):
+class DW_END(enum.Enum, metaclass=HasUserMeta):
     DW_END_default = 0x00
     DW_END_big = 0x01
     DW_END_little = 0x02
@@ -682,7 +705,7 @@ class DW_END(enum.Enum, metaclass=ContainsEnum):
         raise LookupError
 
 
-class DW_LNCT(enum.Enum, metaclass=ContainsEnum):
+class DW_LNCT(enum.Enum, metaclass=HasUserMeta):
     DW_LNCT_path = 0x01
     DW_LNCT_directory_index = 0x02
     DW_LNCT_timestamp = 0x03
