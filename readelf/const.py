@@ -22,6 +22,10 @@ class ENDIAN(enum.Enum, metaclass=ContainsEnum):
     ENDIAN_BIG = 0x2
     ENDIAN_LITTLE = 0x1
 
+    @classmethod
+    def from_dw_endian(cls, dw_endian):
+        return cls(3 - dw_endian.value)  # switcharoo
+
 
 class EI_VER(enum.Enum, metaclass=ContainsEnum):
     # versions
@@ -660,3 +664,19 @@ class DW_ATE(enum.Enum, metaclass=ContainsEnum):
     DW_ATE_ASCII = 0x12
     DW_ATE_lo_user = 0x80
     DW_ATE_hi_user = 0xFF
+
+
+class DW_END(enum.Enum, metaclass=ContainsEnum):
+    DW_END_default = 0x00
+    DW_END_big = 0x01
+    DW_END_little = 0x02
+    DW_END_lo_user = 0x40
+    DW_END_hi_user = 0xFF
+
+    @classmethod
+    def from_endian(cls, endian):
+        if endian == ENDIAN.ENDIAN_LITTLE:
+            return cls.DW_END_little
+        elif endian == ENDIAN.ENDIAN_BIG:
+            return cls.DW_END_big
+        raise LookupError
