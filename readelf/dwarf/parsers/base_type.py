@@ -31,10 +31,12 @@ ENDIANS = {
 
 
 class BaseType:
-    def __init__(self, attrs, cu):
+    def __init__(self, die):
+        attrs = die.attrs
+
         self.encoding = attrs.get(DW_AT.DW_AT_encoding)
         self.endianity = attrs.get(DW_AT.DW_AT_endianity) or DW_END.from_endian(
-            cu.elf_file.endian
+            die.cu.parent.elf_file.endian
         )
         self._byte_size = attrs.get(DW_AT.DW_AT_byte_size)
         self.bit_size = attrs.get(DW_AT.DW_AT_bit_size)
@@ -49,33 +51,33 @@ class BaseType:
                 "base_type must have either byte_size or bit_size attributes"
             )
         if self._byte_size is not None:
-            self.size = self._byte_size
+            self.type_size = self._byte_size
         else:
-            self.size = math.ceil((self.bit_size + self.data_bit_offset) / 8)
+            self.type_size = math.ceil((self.bit_size + self.data_bit_offset) / 8)
 
-        self.struct_string = STRUCTS.get((self.encoding, self.size))
+        self.struct_string = STRUCTS.get((self.encoding, self.type_size))
         if self.struct_string is not None:
             _endian_string = ENDIANS[self.endianity]
             self.struct_string = _endian_string + self.struct_string
 
     def decode(self, stream):
-        buf = stream.read(self.size)
+        buf = stream.read(self.type_size)
         if self.struct_string is not None:
             return struct.unpack(self.struct_string, buf)[0]
         elif (
-            self.encoding == DW_ATE.DW_ATE_unsigned and self.size == self._byte_size
+            self.encoding == DW_ATE.DW_ATE_unsigned and self.type_size == self._byte_size
         ):  # not sure how to handle bits for now
             return endian_parse(buf, ENDIAN.from_dw_end(self.endianity))
-        elif self.encoding == DW_ATE.DW_ATE_signed and self.size == self._byte_size:
+        elif self.encoding == DW_ATE.DW_ATE_signed and self.type_size == self._byte_size:
             i = endian_parse(buf, ENDIAN.from_dw_end(self.endianity))
-            sb_mask = 1 << self.size
-            sign_bit, value = (i & sb_mask) >> self.size, i & ~sb_mask
+            sb_mask = 1 << self.type_size
+            sign_bit, value = (i & sb_mask) >> self.type_size, i & ~sb_mask
             return value * (-1) ** sign_bit
         elif self.encoding == DW_ATE.DW_ATE_ASCII:
             return buf.decode("ascii")
         elif self.encoding == DW_ATE.DW_ATE_UTF:
             return buf.decode("utf-8")
         elif self.encoding == DW_ATE.DW_ATE_complex_float:
-            sfmt = STRUCTS.get((DW_ATE.DW_ATE_float, self.size // 2))
+            sfmt = STRUCTS.get((DW_ATE.DW_ATE_float, self.type_size // 2))
             if sfmt:
                 return complex(*struct.unpack(sfmt * 2, buf))

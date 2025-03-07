@@ -59,7 +59,7 @@ class AbbreviationTableEntry:
                     attributes.append((attr, (form, leb128_parse(stream, signed=True))))
                 else:
                     attributes.append((attr, (form, None)))
-                print("\t", attributes[-1])
+                #print("\t", attributes[-1])
         return cls(
             table,
             abbr_code=abbr_code,

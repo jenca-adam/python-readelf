@@ -1,5 +1,7 @@
 from .leb128 import leb128_parse
 from .attribs import parse_attrib
+from .parsers import parse_die
+from readelf.helpers import map_public_attributes
 import pprint
 
 
@@ -8,10 +10,13 @@ class DIE:
         self.cu = cu
         self.attrs = attrs
         self.abbr_entry = abbr_entry
+        self.tag = self.abbr_entry.tag if self.abbr_entry else None
         self.size = size
         self.is_sentinel = is_sentinel
         self.children = []
         self.has_children = self.abbr_entry and self.abbr_entry.has_children
+        self.parsed = parse_die(self)
+        map_public_attributes(self.parsed, self)
 
     @classmethod
     def from_stream(cls, stream, cu):
@@ -24,14 +29,13 @@ class DIE:
         for attrib in abbr_entry.attributes:
             attr, form = attrib
             attrs[attr] = parse_attrib(attr, form, stream, cu)
-            print(attr, attrs[attr])
         end = stream.tell()
         return cls(cu, abbr_entry, attrs, end - start)
 
     def __repr__(self):
         if self.is_sentinel:
             return "DIE(SENTINEL)"
-        return f"DIE({self.abbr_entry.tag}, {pprint.pformat(self.attrs)})"
+        return f"DIE({self.tag}, {pprint.pformat(self.attrs)})"
 
 
 class DIEPtr:
