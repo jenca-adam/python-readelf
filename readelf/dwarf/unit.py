@@ -83,7 +83,7 @@ class CompilationUnit:
     def parse(cls, dwarf, stream):
         offset = stream.tell()
         unit_length = endian_read(stream, dwarf.elf_file.endian, 4)
-        if unit_length == 0xFFFF:
+        if unit_length == 0xFFFFFFFF:
             unit_length_size = section_offset_length = 8
             unit_length = endian_read(stream, dwarf.elf_file.endian, 8)
             arch = ARCH.ARCH_64

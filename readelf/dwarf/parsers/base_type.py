@@ -65,10 +65,13 @@ class BaseType:
         if self.struct_string is not None:
             return struct.unpack(self.struct_string, buf)[0]
         elif (
-            self.encoding == DW_ATE.DW_ATE_unsigned and self.type_size == self._byte_size
+            self.encoding == DW_ATE.DW_ATE_unsigned
+            and self.type_size == self._byte_size
         ):  # not sure how to handle bits for now
             return endian_parse(buf, ENDIAN.from_dw_end(self.endianity))
-        elif self.encoding == DW_ATE.DW_ATE_signed and self.type_size == self._byte_size:
+        elif (
+            self.encoding == DW_ATE.DW_ATE_signed and self.type_size == self._byte_size
+        ):
             i = endian_parse(buf, ENDIAN.from_dw_end(self.endianity))
             sb_mask = 1 << self.type_size
             sign_bit, value = (i & sb_mask) >> self.type_size, i & ~sb_mask

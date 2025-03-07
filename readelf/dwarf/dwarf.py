@@ -22,7 +22,7 @@ class DWARF:
             ".debug_loc",
             ".debug_str",
             ".debug_line_str",
-            required=[0, 1],  # should we also require .debug_abbrev?
+            required=[0, 1],
             errmsg="file has missing debug information: missing section: {!r}",
         )
         self.units = []

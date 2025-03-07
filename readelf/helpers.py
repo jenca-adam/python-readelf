@@ -37,7 +37,13 @@ def endian_parse(data, endian, **kwargs):
         raise ValueError(f"Bad endian: {endian}")
     return int.from_bytes(data, e, **kwargs)
 
-
+def read_struct(fmt, stream, endian=None):
+    if endian:
+        endian_char = {ENDIAN.ENDIAN_LITTLE:"<",ENDIAN.ENDIAN_BIG:">"}.get(endian,"")
+        fmt=endian_char+fmt
+    sz = struct.getsize(fmt)
+    b = stream.read(sz)
+    return struct.unpack(fmt, b)
 def split_array(data, chunk_size, endian):
     return [
         endian_parse(data[i : i + chunk_size], endian)
