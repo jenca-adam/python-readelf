@@ -1,6 +1,6 @@
 from .const import *
 import math
-
+import struct
 
 def is_eof(bytes_io):
     return bytes_io.tell() == len(bytes_io.getbuffer())
@@ -38,13 +38,13 @@ def endian_parse(data, endian, **kwargs):
     return int.from_bytes(data, e, **kwargs)
 
 
-def read_struct(fmt, stream, endian=None):
+def read_struct(stream, fmt, endian=None):
     if endian:
         endian_char = {ENDIAN.ENDIAN_LITTLE: "<", ENDIAN.ENDIAN_BIG: ">"}.get(
             endian, ""
         )
         fmt = endian_char + fmt
-    sz = struct.getsize(fmt)
+    sz = struct.calcsize(fmt)
     b = stream.read(sz)
     return struct.unpack(fmt, b)
 

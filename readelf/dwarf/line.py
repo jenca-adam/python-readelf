@@ -8,7 +8,7 @@ from readelf.const import DW_FORM, DW_LNCT, ARCH
 
 def _read_formatted(stream, dummycu):
     # used for the file_names and directories fields
-    fmt_cnt = read_struct("b", stream)
+    (fmt_cnt,) = read_struct(stream, "b")
     entry_fmt = []
     for i in range(fmt_cnt):
         type_code_int = leb128_parse(stream)
@@ -20,7 +20,7 @@ def _read_formatted(stream, dummycu):
             raise DWARFError(f"unknown DW_FORM in line header: {form_int}")
         form = DW_FORM(form_int)
         entry_fmt.append(type_code, form)
-    ent_cnt = read_struct("b", stream)
+    (ent_cnt,) = read_struct(stream, "b")
     entries = []
     for i in range(dir_cnt):
         type_code, form = entry_fmt[i]
@@ -28,7 +28,7 @@ def _read_formatted(stream, dummycu):
     return entries
 
 
-class LineNumberProgram:
+class LnoProgram:
     def __init__(
         self,
         unit_length,
@@ -67,6 +67,7 @@ class LineNumberProgram:
 
     @classmethod
     def parse(cls, dwarf, stream):
+        breakpoint()
         unit_length = endian_read(stream, dwarf.elf_file.endian, 4)
         if unit_length == 0xFFFFFFFF:
             unit_length = endian_read(stream, dwarf.elf_file.endian, 8)
@@ -101,8 +102,8 @@ class LineNumberProgram:
             line_base,
             line_range,
             opcode_base,
-        ) = read_struct("BBBbBB", stream)
-        std_opcode_lengths = read_struct(f"{opcode_base}B", stream)
+        ) = read_struct(stream, "BBBbBB")
+        std_opcode_lengths = read_struct(stream, f"{opcode_base}B")
         directories = _read_formatted(stream, dummycu)
         file_names = _read_formatted(stream, dummycu)
 

@@ -1,6 +1,7 @@
 from ..helpers import extract_sections, is_eof
 from .abbr import parse_abbr_section
 from .unit import CompilationUnit
+from .line import LnoProgram
 import io
 
 
@@ -29,6 +30,11 @@ class DWARF:
         _debug_info_stream = io.BytesIO(self.debug_info.content)
         while not is_eof(_debug_info_stream):
             self.units.append(CompilationUnit.parse(self, _debug_info_stream))
+        self.lnos = []
+        if self.debug_line:
+            _debug_line_stream = io.BytesIO(self.debug_line.content)
+            while not is_eof(_debug_line_stream):
+                self.lnos.append(LnoProgram.parse(self, _debug_line_stream))
         _debug_abbrev = io.BytesIO(self.debug_abbrev.content)
         self.abbrevs = parse_abbr_section(_debug_abbrev)
         print(self.abbrevs.tables)
