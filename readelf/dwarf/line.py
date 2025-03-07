@@ -11,21 +11,25 @@ def _read_formatted(stream, dummycu):
     (fmt_cnt,) = read_struct(stream, "B")
     entry_fmt = []
     for i in range(fmt_cnt):
+        type_code_int = leb128_parse(stream)
+        if type_code_int not in DW_LNCT:
+            raise DWARFError(f"unknown DW_LNCT in line header: {type_code_int}")
+        type_code = DW_LNCT(type_code_int)
+
         form_int = leb128_parse(stream)
         if form_int not in DW_FORM:
             raise DWARFError(f"unknown DW_FORM in line header: {form_int}")
         form = DW_FORM(form_int)
 
-        type_code_int = leb128_parse(stream)
-        if type_code_int not in DW_LNCT:
-            raise DWARFError(f"unknown DW_LNCT in line header: {type_code_int}")
-        type_code = DW_LNCT(type_code_int)
         entry_fmt.append((type_code, form))
     entry_cnt = leb128_parse(stream)
     entries = []
     for i in range(entry_cnt):
-        type_code, form = entry_fmt[i]
-        entries.append(type_code, parse_form(form, stream, dummycu, None))  # no supp
+        entry = []
+        for field in entry_fmt:
+            type_code, form = field
+            entry.append((type_code, parse_form(form, stream, dummycu, None)))  # no supp
+        entries.append(entry)
     return entries
 
 
@@ -103,8 +107,7 @@ class LnoProgram:
             line_range,
             opcode_base,
         ) = read_struct(stream, "BBBbBB")
-        std_opcode_lengths = read_struct(stream, f"{opcode_base}B")
-        breakpoint()
+        std_opcode_lengths = read_struct(stream, f"{opcode_base-1}B")
         directories = _read_formatted(stream, dummycu)
         file_names = _read_formatted(stream, dummycu)
 
