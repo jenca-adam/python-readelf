@@ -681,11 +681,12 @@ class DW_END(enum.Enum, metaclass=ContainsEnum):
             return cls.DW_END_big
         raise LookupError
 
-class DW_LNCT(enum.ENUM, metaclass=ContainsEnum):
+
+class DW_LNCT(enum.Enum, metaclass=ContainsEnum):
     DW_LNCT_path = 0x01
     DW_LNCT_directory_index = 0x02
     DW_LNCT_timestamp = 0x03
     DW_LNCT_size = 0x04
     DW_LNCT_MD5 = 0x05
     DW_LNCT_lo_user = 0x2000
-    DW_LNCT_hi_user = 0x3fff
+    DW_LNCT_hi_user = 0x3FFF

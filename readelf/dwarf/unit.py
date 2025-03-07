@@ -1,6 +1,6 @@
 import io
-from ..helpers import endian_read, is_eof
-from ..const import *
+from readelf.helpers import endian_read, is_eof
+from readelf.const import *
 from .err import DWARFError
 from .leb128 import leb128_parse
 from .die import DIE, DIEPtr
