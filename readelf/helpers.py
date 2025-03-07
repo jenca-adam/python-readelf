@@ -2,6 +2,7 @@ from .const import *
 import math
 import struct
 
+
 def is_eof(bytes_io):
     return bytes_io.tell() == len(bytes_io.getbuffer())
 

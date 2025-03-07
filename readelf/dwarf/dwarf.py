@@ -33,8 +33,9 @@ class DWARF:
         self.lnos = []
         if self.debug_line:
             _debug_line_stream = io.BytesIO(self.debug_line.content)
-            while not is_eof(_debug_line_stream):
-                self.lnos.append(LnoProgram.parse(self, _debug_line_stream))
+            self.lnos.append(
+                LnoProgram.parse(self, _debug_line_stream)
+            )  # only parse one for now?
         _debug_abbrev = io.BytesIO(self.debug_abbrev.content)
         self.abbrevs = parse_abbr_section(_debug_abbrev)
         print(self.abbrevs.tables)

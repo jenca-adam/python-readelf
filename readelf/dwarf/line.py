@@ -8,21 +8,22 @@ from readelf.const import DW_FORM, DW_LNCT, ARCH
 
 def _read_formatted(stream, dummycu):
     # used for the file_names and directories fields
-    (fmt_cnt,) = read_struct(stream, "b")
+    (fmt_cnt,) = read_struct(stream, "B")
     entry_fmt = []
     for i in range(fmt_cnt):
-        type_code_int = leb128_parse(stream)
-        if type_code_int not in DW_LNCT:
-            raise DWARFError(f"unknown DW_LNCT in line header: {type_code_int}")
-        type_code = DW_LNCT(type_code_int)
         form_int = leb128_parse(stream)
         if form_int not in DW_FORM:
             raise DWARFError(f"unknown DW_FORM in line header: {form_int}")
         form = DW_FORM(form_int)
-        entry_fmt.append(type_code, form)
-    (ent_cnt,) = read_struct(stream, "b")
+
+        type_code_int = leb128_parse(stream)
+        if type_code_int not in DW_LNCT:
+            raise DWARFError(f"unknown DW_LNCT in line header: {type_code_int}")
+        type_code = DW_LNCT(type_code_int)
+        entry_fmt.append((type_code, form))
+    entry_cnt = leb128_parse(stream)
     entries = []
-    for i in range(dir_cnt):
+    for i in range(entry_cnt):
         type_code, form = entry_fmt[i]
         entries.append(type_code, parse_form(form, stream, dummycu, None))  # no supp
     return entries
@@ -67,7 +68,6 @@ class LnoProgram:
 
     @classmethod
     def parse(cls, dwarf, stream):
-        breakpoint()
         unit_length = endian_read(stream, dwarf.elf_file.endian, 4)
         if unit_length == 0xFFFFFFFF:
             unit_length = endian_read(stream, dwarf.elf_file.endian, 8)
@@ -104,6 +104,7 @@ class LnoProgram:
             opcode_base,
         ) = read_struct(stream, "BBBbBB")
         std_opcode_lengths = read_struct(stream, f"{opcode_base}B")
+        breakpoint()
         directories = _read_formatted(stream, dummycu)
         file_names = _read_formatted(stream, dummycu)
 
