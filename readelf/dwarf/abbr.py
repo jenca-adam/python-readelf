@@ -57,7 +57,8 @@ class AbbreviationTableEntry:
                 attr, form = DW_AT(attr_int), DW_FORM(form_int)
                 if form == DW_FORM.DW_FORM_implicit_const:
                     attributes.append((attr, (form, leb128_parse(stream, signed=True))))
-                attributes.append((attr, (form, None)))
+                else:
+                    attributes.append((attr, (form, None)))
                 print("\t", attributes[-1])
         return cls(
             table,

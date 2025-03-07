@@ -2,6 +2,7 @@ from .leb128 import leb128_parse
 from .attribs import parse_attrib
 import pprint
 
+
 class DIE:
     def __init__(self, cu, abbr_entry, attrs, size, is_sentinel=False):
         self.cu = cu
