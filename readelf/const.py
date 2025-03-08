@@ -10,23 +10,31 @@ class ContainsEnum(enum.EnumMeta):
             return cls(value)
         return default
 
+
+class UserExtra:
+    def __init__(self, enum, value):
+        self.enum = enum
+        self.value = value
+
+
 class HasUserMeta(ContainsEnum):
     def __contains__(cls, value):
-        louser_str, hiuser_str = cls.__name__+"_lo_user", cls.__name__+"_hi_user"
+        louser_str, hiuser_str = cls.__name__ + "_lo_user", cls.__name__ + "_hi_user"
         louser = getattr(cls, louser_str, None)
         hiuser = getattr(cls, hiuser_str, None)
-        is_user = louser and hiuser and louser.value<=value<=hiuser.value
+        is_user = louser and hiuser and louser.value <= value <= hiuser.value
         return is_user or any(value == item.value for item in cls)
 
     def __call__(cls, val):
-        louser_str, hiuser_str = cls.__name__+"_lo_user", cls.__name__+"_hi_user"
+        louser_str, hiuser_str = cls.__name__ + "_lo_user", cls.__name__ + "_hi_user"
         louser = getattr(cls, louser_str, None)
         hiuser = getattr(cls, hiuser_str, None)
         if louser and hiuser:
-            if louser.value<=val<=hiuser.value:
-                val=louser.value
+            if louser.value <= val <= hiuser.value:
+                return UserExtra(cls, louser.value)
         return cls.__new__(cls, val)
-    
+
+
 class ARCH(enum.Enum, metaclass=ContainsEnum):
     # archs
     ARCH_32 = 0x1
@@ -350,7 +358,8 @@ class DW_UT(enum.Enum, metaclass=HasUserMeta):
     DW_UT_split_compile = 0x05
     DW_UT_split_type = 0x06
     DW_UT_lo_user = 0x80
-    DW_UT_hi_user = 0xff
+    DW_UT_hi_user = 0xFF
+
 
 class DW_TAG(enum.Enum, metaclass=HasUserMeta):
 
@@ -431,7 +440,7 @@ class DW_TAG(enum.Enum, metaclass=HasUserMeta):
     DW_TAG_immutable_type = 0x4B
 
     DW_TAG_lo_user = 0x4080
-    DW_TAG_hi_user = 0xffff
+    DW_TAG_hi_user = 0xFFFF
 
 
 class DW_AT(enum.Enum, metaclass=HasUserMeta):
@@ -574,7 +583,7 @@ class DW_AT(enum.Enum, metaclass=HasUserMeta):
     DW_AT_null = 0x00
 
     DW_AT_lo_user = 0x2000
-    DW_AT_hi_user = 0x3fff
+    DW_AT_hi_user = 0x3FFF
 
 
 class DW_FORM(enum.Enum, metaclass=ContainsEnum):
@@ -713,3 +722,27 @@ class DW_LNCT(enum.Enum, metaclass=HasUserMeta):
     DW_LNCT_MD5 = 0x05
     DW_LNCT_lo_user = 0x2000
     DW_LNCT_hi_user = 0x3FFF
+
+
+class DW_LNS(enum.Enum):
+    DW_LNS_copy = 0x01
+    DW_LNS_advance_pc = 0x02
+    DW_LNS_advance_line = 0x03
+    DW_LNS_set_file = 0x04
+    DW_LNS_set_column = 0x05
+    DW_LNS_negate_stmt = 0x06
+    DW_LNS_set_basic_block = 0x07
+    DW_LNS_const_add_pc = 0x08
+    DW_LNS_fixed_advance_pc = 0x09
+    DW_LNS_set_prologue_end = 0x0A
+    DW_LNS_set_epilogue_begin = 0x0B
+    DW_LNS_set_isa = 0x0C
+
+
+class DW_LNE(enum.Enum, metaclass=HasUserMeta):
+    DW_LNE_end_sequence = 0x01
+    DW_LNE_set_address = 0x02
+    DW_LNE_reserved = 0x034
+    DW_LNE_set_discriminator = 0x04
+    DW_LNE_lo_user = 0x80
+    DW_LNE_hi_user = 0xFF

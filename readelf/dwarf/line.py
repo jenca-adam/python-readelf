@@ -3,7 +3,7 @@ from .leb128 import leb128_parse
 from .attribs.form import parse_form
 from .unit import CompilationUnit
 from readelf.helpers import endian_read, read_struct
-from readelf.const import DW_FORM, DW_LNCT, ARCH
+from readelf.const import DW_FORM, DW_LNCT, ARCH, DW_LNS, DW_LNE
 
 
 def _read_formatted(stream, dummycu):
@@ -28,9 +28,24 @@ def _read_formatted(stream, dummycu):
         entry = []
         for field in entry_fmt:
             type_code, form = field
-            entry.append((type_code, parse_form(form, stream, dummycu, None)))  # no supp
+            entry.append(
+                (type_code, parse_form(form, stream, dummycu, None))
+            )  # no supp
         entries.append(entry)
     return entries
+
+
+class ProgramInstr:
+    def __init__(self, typ, operands):
+        self.typ = typ
+        self.operands = operands
+
+    @classmethod
+    def parse(self, stream, std_opcode_lengths, opcode_base):
+        opcode = read_struct(stream, "B")
+        if opcode == 0:
+            ext_opcode = read_struct(stream, "B")
+            typ = DW_LNE(ext_opcode)
 
 
 class LnoProgram:
@@ -72,7 +87,7 @@ class LnoProgram:
 
     @classmethod
     def parse(cls, dwarf, stream):
-        print(hex(stream.tell()))
+        offset = stream.tell()
         unit_length = endian_read(stream, dwarf.elf_file.endian, 4)
         if unit_length == 0xFFFFFFFF:
             unit_length = endian_read(stream, dwarf.elf_file.endian, 8)
@@ -98,9 +113,9 @@ class LnoProgram:
             0, arch, 5, None, 0, addr_size, None, b"", dwarf, None, 0, 0, 0, 0
         )
         header_length = endian_read(stream, dwarf.elf_file.endian, unit_length_size)
-        prog_offset = stream.tell() + header_length + unit_length_size
+        prog_offset = stream.tell() - offset + header_length
         prog_size = unit_length - prog_offset + unit_length_size  # right??
-        print(prog_size, unit_length, prog_offset+prog_size)
+        print(prog_size, unit_length, prog_offset + prog_size)
         (
             min_instr_length,
             max_op_per_instr,
@@ -113,7 +128,6 @@ class LnoProgram:
         directories = _read_formatted(stream, dummycu)
         file_names = _read_formatted(stream, dummycu)
 
-        stream.seek(prog_offset)
         prog = stream.read(prog_size)
         return cls(
             unit_length,
