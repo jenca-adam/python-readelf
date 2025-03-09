@@ -35,7 +35,6 @@ class AbbreviationTableEntry:
         if tag_int not in DW_TAG:
             raise DWARFError(f"unknown DW_TAG in abbreviation table: 0x{tag_int:X}")
         tag = DW_TAG(tag_int)
-        print("TAG:", tag)
         has_children_bytes = stream.read(1)
         if not has_children_bytes:
             raise EOFError("Section ends while reading has_children")

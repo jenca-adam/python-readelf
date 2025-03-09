@@ -35,17 +35,50 @@ def _read_formatted(stream, dummycu):
     return entries
 
 
+class Operation:
+    def __init__(self, op_advance, line_increment):
+        self.op_advance = op_advance
+        self.line_increment = line_increment
+
+    @classmethod
+    def from_special_opcode(cls, opcode, opcode_base, line_base, line_range):
+        adjusted = opcode - opcode_base
+        op_advance = adjusted // line_range
+        line_increment = line_base + (adjusted % line_range)
+        return cls(op_advance, line_increment)
+
+    def __repr__(self):
+        return f"Operation({self.op_advance}, {self.line_increment})"
+
+
 class ProgramInstr:
     def __init__(self, typ, operands):
         self.typ = typ
         self.operands = operands
 
     @classmethod
-    def parse(self, stream, std_opcode_lengths, opcode_base):
-        opcode = read_struct(stream, "B")
-        if opcode == 0:
-            ext_opcode = read_struct(stream, "B")
+    def parse(cls, stream, std_opcode_lengths, opcode_base, line_base, line_range):
+        (opcode,) = read_struct(stream, "B")
+        if opcode == 0:  # extended
+            length = leb128_parse(stream)
+            (ext_opcode,) = read_struct(stream, "B")
             typ = DW_LNE(ext_opcode)
+            operands = stream.read(length - 1)
+        elif opcode < opcode_base:
+            typ = DW_LNS(opcode)
+            n_ops = std_opcode_lengths[opcode - 1]
+            operands = [leb128_parse(stream) for _ in range(n_ops)]
+        else:
+            typ = Operation.from_special_opcode(
+                opcode, opcode_base, line_base, line_range
+            )
+            operands = None
+        return cls(typ, operands)
+
+    def __repr__(self):
+        return (
+            f"ProgramInstr({self.typ}{f', {self.operands}' if self.operands else ''})"
+        )
 
 
 class LnoProgram:
@@ -107,7 +140,7 @@ class LnoProgram:
         # the reason i don't pass a cu is because of the ominous comments in the dwarf documentation
         # about how it's "common practice" to remove everything but the line info
         # XXX: this is only temporary
-        # TODO: replace with a more robust system before merging (dataclass)
+        # TODO: replace with a more robust system before merging (dataclass?)
 
         dummycu = CompilationUnit(
             0, arch, 5, None, 0, addr_size, None, b"", dwarf, None, 0, 0, 0, 0
@@ -128,7 +161,14 @@ class LnoProgram:
         directories = _read_formatted(stream, dummycu)
         file_names = _read_formatted(stream, dummycu)
 
-        prog = stream.read(prog_size)
+        prog = []
+        prog_end = stream.tell() + prog_size
+        while stream.tell() < prog_end:
+            prog.append(
+                ProgramInstr.parse(
+                    stream, std_opcode_lengths, opcode_base, line_base, line_range
+                )
+            )
         return cls(
             unit_length,
             arch,
