@@ -35,20 +35,87 @@ def _read_formatted(stream, dummycu):
     return entries
 
 
+class State:
+    def __init__(self, default_is_stmt):
+        self.address = 0
+        self.op_index = 0
+        self.file = 1
+        self.line = 1
+        self.column = 0
+        self.is_stmt = default_is_stmt
+        self.basic_block = False
+        self.end_sequence = False
+        self.prologue_end = False
+        self.epilogue_begin = False
+        self.isa = 0
+        self.discriminator = 0
+        self.matrix = []
+
+
 class Operation:
-    def __init__(self, op_advance, line_increment):
-        self.op_advance = op_advance
-        self.line_increment = line_increment
+    def __init__(
+        self,
+        line_set=0,
+        address_set=0,
+        op_index_set=0,
+        file_set=None,
+        col_set=None,
+        is_stmt_toggle=False,
+        basic_block_set=None,
+        end_sequence_set=None,
+        prologue_end_set=None,
+        epilogue_begin_set=None,
+        isa_set=None,
+        discriminator_set=None,
+        append_matrix=False,
+    ):
+        self.line_set = line_set
+        self.address_set = address_set
+        self.op_index_set = op_index_set
+        self.file_set = file_set
+        self.col_set = col_set
+        self.is_stmt_toggle = is_stmt_toggle
+        self.basic_block_set = basic_block_set
+        self.end_sequence_set = end_sequence_set
+        self.prologue_end_set = prologue_end_set
+        self.epilogue_begin_set = epilogue_begin_set
+        self.isa_set = isa_set
+        self.discriminator_set = discriminator_set
 
     @classmethod
-    def from_special_opcode(cls, opcode, opcode_base, line_base, line_range):
+    def from_special_opcode(
+        cls,
+        state,
+        opcode,
+        opcode_base,
+        line_base,
+        line_range,
+        minimum_instruction_length,
+        maximum_operations_per_instruction,
+    ):
         adjusted = opcode - opcode_base
         op_advance = adjusted // line_range
         line_increment = line_base + (adjusted % line_range)
-        return cls(op_advance, line_increment)
+        line_set = state.line + line_increment
+        address_set = state.address + minimum_instruction_length * (
+            (state.op_index + op_advance) // maximum_operations_per_instruction
+        )
+        op_index_set = (
+            state.op_index + op_advance
+        ) % maximum_operations_per_instruction
+        return cls(
+            line_set=line_set,
+            address_set=address_set,
+            op_index_set=op_index_set,
+            basic_block_set=False,
+            prologue_end_set=False,
+            epilogue_begin_set=False,
+            discriminator_set=0,
+            append_matrix=True,
+        )
 
     def __repr__(self):
-        return f"Operation({self.op_advance}, {self.line_increment})"
+        return f"Operation(line={self.line_set}, addr={self.address_set}, op_index={self.op_index_set})"
 
 
 class ProgramInstr:
@@ -57,7 +124,17 @@ class ProgramInstr:
         self.operands = operands
 
     @classmethod
-    def parse(cls, stream, std_opcode_lengths, opcode_base, line_base, line_range):
+    def parse(
+        cls,
+        stream,
+        std_opcode_lengths,
+        opcode_base,
+        line_base,
+        line_range,
+        state,
+        minimum_instruction_length,
+        maximum_operations_per_instruction,
+    ):
         (opcode,) = read_struct(stream, "B")
         if opcode == 0:  # extended
             length = leb128_parse(stream)
@@ -70,7 +147,13 @@ class ProgramInstr:
             operands = [leb128_parse(stream) for _ in range(n_ops)]
         else:
             typ = Operation.from_special_opcode(
-                opcode, opcode_base, line_base, line_range
+                state,
+                opcode,
+                opcode_base,
+                line_base,
+                line_range,
+                minimum_instruction_length,
+                maximum_operations_per_instruction,
             )
             operands = None
         return cls(typ, operands)
@@ -160,13 +243,20 @@ class LnoProgram:
         std_opcode_lengths = read_struct(stream, f"{opcode_base-1}B")
         directories = _read_formatted(stream, dummycu)
         file_names = _read_formatted(stream, dummycu)
-
+        state = State(bool(default_is_stmt))
         prog = []
         prog_end = stream.tell() + prog_size
         while stream.tell() < prog_end:
             prog.append(
                 ProgramInstr.parse(
-                    stream, std_opcode_lengths, opcode_base, line_base, line_range
+                    stream,
+                    std_opcode_lengths,
+                    opcode_base,
+                    line_base,
+                    line_range,
+                    state,
+                    min_instr_length,
+                    max_op_per_instr,
                 )
             )
         return cls(
