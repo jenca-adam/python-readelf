@@ -51,6 +51,9 @@ class State:
         self.discriminator = 0
         self.matrix = []
 
+    def append_matrix(self):
+        pass
+
 
 class Operation:
     def __init__(
@@ -81,6 +84,36 @@ class Operation:
         self.epilogue_begin_set = epilogue_begin_set
         self.isa_set = isa_set
         self.discriminator_set = discriminator_set
+        self.append_matrix = append_matrix
+
+    def execute(self, state):
+        if self.line_set is not None:
+            state.line = self.line_set
+        if self.address_set is not None:
+            state.address = self.address_set
+        ## etc
+        if self.op_index_set is not None:
+            state.op_index = self.op_index_set
+        if self.file_set is not None:
+            state.file = self.file_set
+        if self.col_set is not None:
+            state.col = self.col_set
+        if self.is_stmt_toggle:
+            state.is_stmt = not state.is_stmt
+        if self.basic_block_set is not None:
+            state.basic_block_set = self.basic_block_set
+        if self.end_sequence_set is not None:
+            state.end_sequence = self.end_sequence_set
+        if self.prologue_end_set is not None:
+            state.prologue_end = self.prologue_end_set
+        if self.epilogue_begin_set is not None:
+            state.epilogue_begin = self.epilogue_begin_set
+        if self.isa_set is not None:
+            state.isa = self.isa_set
+        if self.discriminator_set is not None:
+            state.discriminator = self.discriminator_set
+        if self.append_matrix:
+            state.append_matrix()
 
     @classmethod
     def from_special_opcode(
@@ -219,8 +252,8 @@ class LnoProgram:
             )
         addr_size, segment_sel_size = read_struct(stream, "BB")
 
-        # a dumb way to pass metadata to form parser.
-        # the reason i don't pass a cu is because of the ominous comments in the dwarf documentation
+        # a dumb way to pass metadata to the form parser.
+        # the reason i don't pass an actual cu is because of the ominous comments in the dwarf documentation
         # about how it's "common practice" to remove everything but the line info
         # XXX: this is only temporary
         # TODO: replace with a more robust system before merging (dataclass?)
