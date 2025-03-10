@@ -2,9 +2,11 @@ from .err import DWARFError
 from .leb128 import leb128_parse
 from .attribs.form import parse_form
 from .unit import CompilationUnit
-from readelf.helpers import endian_read, read_struct
+from readelf.helpers import endian_read, endian_parse, read_struct
 from readelf.const import DW_FORM, DW_LNCT, ARCH, DW_LNS, DW_LNE
 import enum
+import io
+from dataclasses import dataclass
 
 
 def _read_formatted(stream, dummycu):
@@ -54,18 +56,21 @@ class BaseOps(enum.Enum):
     EPILOGUE_BEGIN_SET = 14
     ISA_SET = 15
     DISCRIMINATOR_SET = 16
-    ADVANCE_OP = 17
+    ADVANCE_PC = 17
     APPEND_MATRIX = 18
+    RESET_STMT = 19
 
 
 class State:
-    def __init__(self, default_is_stmt):
+    def __init__(self, default_is_stmt, files):
+        self._files = files
         self.address = 0
         self.op_index = 0
         self.file = 1
         self.line = 1
         self.column = 0
         self.is_stmt = default_is_stmt
+        self._default_is_stmt = default_is_stmt
         self.basic_block = False
         self.end_sequence = False
         self.prologue_end = False
@@ -74,15 +79,35 @@ class State:
         self.discriminator = 0
         self.matrix = []
 
+    def reset_stmt(self):
+        self.is_stmt = self._default_is_stmt
+
     def append_matrix(self):
-        pass
+        self.matrix.append(
+            (
+                self.address,
+                self.op_index,
+                self._files[self.file],
+                self.line,
+                self.column,
+                self.is_stmt,
+                self.basic_block,
+                self.end_sequence,
+                self.prologue_end,
+                self.epilogue_begin,
+                self.isa,
+                self.discriminator,
+            )
+        )
 
 
-class Operation:
+class ProgramInstr:
     def __init__(self, *base_ops):
         self.base_ops = base_ops
 
-    def execute(self, state, minimum_instruction_length, maximum_operations_per_opcode):
+    def execute(
+        self, state, minimum_instruction_length, maximum_operations_per_instruction
+    ):
         for op, *opargs in self.base_ops:
             if op == BaseOps.ADDR_ADD:
                 state.addr += opargs[0]
@@ -118,20 +143,21 @@ class Operation:
                 state.isa = opargs[0]
             if op == BaseOps.DISCRIMINATOR_SET:
                 state.discriminator = opargs[0]
-            if op == BaseOps.ADVANCE_OP:
+            if op == BaseOps.ADVANCE_PC:
                 state.op_index = (
                     state.op_index + opargs[0]
                 ) % maximum_operations_per_instruction
                 state.address = state.address + minimum_instruction_length * (
-                    (state.op_index + opargs[0]) / maximum_operations_per_instruction
+                    (state.op_index + opargs[0]) // maximum_operations_per_instruction
                 )
             if op == BaseOps.APPEND_MATRIX:
                 state.append_matrix()
+            if op == BaseOps.RESET_STMT:
+                state.reset_stmt()
 
     @classmethod
     def from_special_opcode(
         cls,
-        state,
         opcode,
         opcode_base,
         line_base,
@@ -142,7 +168,7 @@ class Operation:
         line_increment = line_base + (adjusted % line_range)
         return cls(
             (BaseOps.LINE_ADD, line_increment),
-            (BaseOps.ADVANCE_OP, op_advance),
+            (BaseOps.ADVANCE_PC, op_advance),
             (BaseOps.APPEND_MATRIX,),
             (BaseOps.BASIC_BLOCK_SET, False),
             (BaseOps.PROLOGUE_END_SET, False),
@@ -151,7 +177,7 @@ class Operation:
         )
 
     @classmethod
-    def from_standard_opcode(cls, state, opcode, operands):
+    def from_standard_opcode(cls, opcode, operands, opcode_base, line_base, line_range):
         if opcode == DW_LNS.DW_LNS_copy:
             return cls(
                 (BaseOps.APPEND_MATRIX,),
@@ -160,15 +186,57 @@ class Operation:
                 (BaseOps.EPILOGUE_BEGIN_SET, False),
                 (BaseOps.DISCRIMINATOR_SET, 0),
             )
+        elif opcode == DW_LNS.DW_LNS_advance_pc:
+            return cls((BaseOps.ADVANCE_PC, *operands))
+        elif opcode == DW_LNS.DW_LNS_advance_line:
+            return cls((BaseOps.LINE_ADD, *operands))
+        elif opcode == DW_LNS.DW_LNS_set_file:
+            return cls((BaseOps.FILE_SET, *operands))
+        elif opcode == DW_LNS.DW_LNS_set_column:
+            return cls((BaseOps.COLUMN_SET, *operands))
+        elif opcode == DW_LNS.DW_LNS_negate_stmt:
+            return cls((BaseOps.IS_STMT_TOGGLE,))
+        elif opcode == DW_LNS.DW_LNS_set_basic_block:
+            return cls((BaseOps.BASIC_BLOCK_SET, *operands))
+        elif opcode == DW_LNS.DW_LNS_const_add_pc:
+            return cls.from_special_opcode(255, opcode_base, line_base, line_range)
+        elif opcode == DW_LNS.DW_LNS_fixed_advance_pc:
+            return cls((BaseOps.LINE_ADD, *operands), (BaseOps.OP_INDEX_SET, 0))
+        elif opcode == DW_LNS.DW_LNS_set_prologue_end:
+            return cls((BaseOps.PROLOGUE_END_SET, True))
+        elif opcode == DW_LNS.DW_LNS_set_epilogue_begin:
+            return cls((BaseOps.EPILOGUE_BEGIN_SET, True))
+        elif opcode == DW_LNS.DW_LNS_set_isa:
+            return cls((BaseOps.ISA_SET, *operands))
 
-    def __repr__(self):
-        return f"Operation(line={self.line_set}, addr={self.address_set}, op_index={self.op_index_set})"
-
-
-class ProgramInstr:
-    def __init__(self, typ, operands):
-        self.typ = typ
-        self.operands = operands
+    @classmethod
+    def from_extended_opcode(cls, opcode, operands, dwarf):
+        if opcode == DW_LNE.DW_LNE_end_sequence:
+            return cls(
+                (BaseOps.END_SEQUENCE_SET, True),
+                (BaseOps.APPEND_MATRIX,),
+                (BaseOps.ADDR_SET, 0),
+                (BaseOps.OP_INDEX_SET, 0),
+                (BaseOps.FILE_SET, 1),
+                (BaseOps.LINE_SET, 1),
+                (BaseOps.COLUMN_SET, 0),
+                (BaseOps.RESET_STMT,),
+                (BaseOps.BASIC_BLOCK_SET, False),
+                (BaseOps.END_SEQUENCE_SET, False),
+                (BaseOps.PROLOGUE_END_SET, False),
+                (BaseOps.EPILOGUE_BEGIN_SET, False),
+                (BaseOps.ISA_SET, 0),
+                (BaseOps.DISCRIMINATOR_SET, 0),
+            )
+        elif opcode == DW_LNE.DW_LNE_set_address:
+            addr = endian_parse(operands, dwarf.elf_file.endian)
+            return cls(
+                (BaseOps.ADDR_SET, addr),
+                (BaseOps.OP_INDEX_SET, 0),
+            )
+        elif opcode == DW_LNE.DW_LNE_set_discriminator:
+            discriminator = leb128_parse(io.BytesIO(operands))
+            return cls((BaseOps.DISCRIMINATOR_SET, discriminator))
 
     @classmethod
     def parse(
@@ -181,6 +249,7 @@ class ProgramInstr:
         state,
         minimum_instruction_length,
         maximum_operations_per_instruction,
+        dwarf,
     ):
         (opcode,) = read_struct(stream, "B")
         if opcode == 0:  # extended
@@ -188,27 +257,26 @@ class ProgramInstr:
             (ext_opcode,) = read_struct(stream, "B")
             typ = DW_LNE(ext_opcode)
             operands = stream.read(length - 1)
+            return cls.from_extended_opcode(typ, operands, dwarf)
         elif opcode < opcode_base:
             typ = DW_LNS(opcode)
             n_ops = std_opcode_lengths[opcode - 1]
-            operands = [leb128_parse(stream) for _ in range(n_ops)]
+            if typ == DW_LNS.DW_LNS_fixed_advance_pc:  # quirky *
+                operands = [
+                    endian_read(stream, dwarf.elf_file.endian, 2) for _ in range(n_ops)
+                ]
+            else:
+                operands = [leb128_parse(stream) for _ in range(n_ops)]
+            return cls.from_standard_opcode(
+                typ, operands, opcode_base, line_base, line_range
+            )
         else:
-            typ = Operation.from_special_opcode(
-                state,
+            return cls.from_special_opcode(
                 opcode,
                 opcode_base,
                 line_base,
                 line_range,
-                minimum_instruction_length,
-                maximum_operations_per_instruction,
             )
-            operands = None
-        return cls(typ, operands)
-
-    def __repr__(self):
-        return (
-            f"ProgramInstr({self.typ}{f', {self.operands}' if self.operands else ''})"
-        )
 
 
 class LnoProgram:
@@ -290,22 +358,21 @@ class LnoProgram:
         std_opcode_lengths = read_struct(stream, f"{opcode_base-1}B")
         directories = _read_formatted(stream, dummycu)
         file_names = _read_formatted(stream, dummycu)
-        state = State(bool(default_is_stmt))
-        prog = []
+        state = State(bool(default_is_stmt), file_names)
         prog_end = stream.tell() + prog_size
         while stream.tell() < prog_end:
-            prog.append(
-                ProgramInstr.parse(
-                    stream,
-                    std_opcode_lengths,
-                    opcode_base,
-                    line_base,
-                    line_range,
-                    state,
-                    min_instr_length,
-                    max_op_per_instr,
-                )
+            instr = ProgramInstr.parse(
+                stream,
+                std_opcode_lengths,
+                opcode_base,
+                line_base,
+                line_range,
+                state,
+                min_instr_length,
+                max_op_per_instr,
+                dwarf,
             )
+            instr.execute(state, min_instr_length, max_op_per_instr)
         return cls(
             unit_length,
             arch,
@@ -322,5 +389,5 @@ class LnoProgram:
             std_opcode_lengths,
             directories,
             file_names,
-            prog,
+            state.matrix,
         )
