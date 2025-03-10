@@ -4,6 +4,7 @@ from .attribs.form import parse_form
 from .unit import CompilationUnit
 from readelf.helpers import endian_read, read_struct
 from readelf.const import DW_FORM, DW_LNCT, ARCH, DW_LNS, DW_LNE
+import enum
 
 
 def _read_formatted(stream, dummycu):
@@ -35,6 +36,28 @@ def _read_formatted(stream, dummycu):
     return entries
 
 
+class BaseOps(enum.Enum):
+    ADDR_ADD = 0
+    ADDR_SET = 1
+    OP_INDEX_ADD = 2
+    OP_INDEX_SET = 3
+    FILE_SET = 4
+    LINE_ADD = 5
+    LINE_SET = 6
+    COLUMN_ADD = 7
+    COLUMN_SET = 8
+    IS_STMT_TOGGLE = 9
+    IS_STMT_SET = 10
+    BASIC_BLOCK_SET = 11
+    END_SEQUENCE_SET = 12
+    PROLOGUE_END_SET = 13
+    EPILOGUE_BEGIN_SET = 14
+    ISA_SET = 15
+    DISCRIMINATOR_SET = 16
+    ADVANCE_OP = 17
+    APPEND_MATRIX = 18
+
+
 class State:
     def __init__(self, default_is_stmt):
         self.address = 0
@@ -56,64 +79,54 @@ class State:
 
 
 class Operation:
-    def __init__(
-        self,
-        line_set=0,
-        address_set=0,
-        op_index_set=0,
-        file_set=None,
-        col_set=None,
-        is_stmt_toggle=False,
-        basic_block_set=None,
-        end_sequence_set=None,
-        prologue_end_set=None,
-        epilogue_begin_set=None,
-        isa_set=None,
-        discriminator_set=None,
-        append_matrix=False,
-    ):
-        self.line_set = line_set
-        self.address_set = address_set
-        self.op_index_set = op_index_set
-        self.file_set = file_set
-        self.col_set = col_set
-        self.is_stmt_toggle = is_stmt_toggle
-        self.basic_block_set = basic_block_set
-        self.end_sequence_set = end_sequence_set
-        self.prologue_end_set = prologue_end_set
-        self.epilogue_begin_set = epilogue_begin_set
-        self.isa_set = isa_set
-        self.discriminator_set = discriminator_set
-        self.append_matrix = append_matrix
+    def __init__(self, *base_ops):
+        self.base_ops = base_ops
 
-    def execute(self, state):
-        if self.line_set is not None:
-            state.line = self.line_set
-        if self.address_set is not None:
-            state.address = self.address_set
-        ## etc
-        if self.op_index_set is not None:
-            state.op_index = self.op_index_set
-        if self.file_set is not None:
-            state.file = self.file_set
-        if self.col_set is not None:
-            state.col = self.col_set
-        if self.is_stmt_toggle:
-            state.is_stmt = not state.is_stmt
-        if self.basic_block_set is not None:
-            state.basic_block_set = self.basic_block_set
-        if self.end_sequence_set is not None:
-            state.end_sequence = self.end_sequence_set
-        if self.prologue_end_set is not None:
-            state.prologue_end = self.prologue_end_set
-        if self.epilogue_begin_set is not None:
-            state.epilogue_begin = self.epilogue_begin_set
-        if self.isa_set is not None:
-            state.isa = self.isa_set
-        if self.discriminator_set is not None:
-            state.discriminator = self.discriminator_set
-        if self.append_matrix:
-            state.append_matrix()
+    def execute(self, state, minimum_instruction_length, maximum_operations_per_opcode):
+        for op, *opargs in self.base_ops:
+            if op == BaseOps.ADDR_ADD:
+                state.addr += opargs[0]
+            if op == BaseOps.ADDR_SET:
+                state.addr = opargs[0]
+            if op == BaseOps.OP_INDEX_ADD:
+                state.op_index += opargs[0]
+            if op == BaseOps.OP_INDEX_SET:
+                state.op_index = opargs[0]
+            if op == BaseOps.FILE_SET:
+                state.file = opargs[0]
+            if op == BaseOps.LINE_ADD:
+                state.line += opargs[0]
+            if op == BaseOps.LINE_SET:
+                state.line = opargs[0]
+            if op == BaseOps.COLUMN_ADD:
+                state.column += opargs[0]
+            if op == BaseOps.COLUMN_SET:
+                state.column = opargs[0]
+            if op == BaseOps.IS_STMT_TOGGLE:
+                state.is_stmt = not state.is_stmt
+            if op == BaseOps.IS_STMT_SET:
+                state.is_stmt = bool(opargs[0])
+            if op == BaseOps.BASIC_BLOCK_SET:
+                state.basic_block = bool(opargs[0])
+            if op == BaseOps.END_SEQUENCE_SET:
+                state.end_sequence = bool(opargs[0])
+            if op == BaseOps.PROLOGUE_END_SET:
+                state.prologue_end = bool(opargs[0])
+            if op == BaseOps.EPILOGUE_BEGIN_SET:
+                state.epilogue_begin = bool(opargs[0])
+            if op == BaseOps.ISA_SET:
+                state.isa = opargs[0]
+            if op == BaseOps.DISCRIMINATOR_SET:
+                state.discriminator = opargs[0]
+            if op == BaseOps.ADVANCE_OP:
+                state.op_index = (
+                    state.op_index + opargs[0]
+                ) % maximum_operations_per_instruction
+                state.address = state.address + minimum_instruction_length * (
+                    (state.op_index + opargs[0]) / maximum_operations_per_instruction
+                )
+            if op == BaseOps.APPEND_MATRIX:
+                state.append_matrix()
 
     @classmethod
     def from_special_opcode(
@@ -123,29 +136,30 @@ class Operation:
         opcode_base,
         line_base,
         line_range,
-        minimum_instruction_length,
-        maximum_operations_per_instruction,
     ):
         adjusted = opcode - opcode_base
         op_advance = adjusted // line_range
         line_increment = line_base + (adjusted % line_range)
-        line_set = state.line + line_increment
-        address_set = state.address + minimum_instruction_length * (
-            (state.op_index + op_advance) // maximum_operations_per_instruction
-        )
-        op_index_set = (
-            state.op_index + op_advance
-        ) % maximum_operations_per_instruction
         return cls(
-            line_set=line_set,
-            address_set=address_set,
-            op_index_set=op_index_set,
-            basic_block_set=False,
-            prologue_end_set=False,
-            epilogue_begin_set=False,
-            discriminator_set=0,
-            append_matrix=True,
+            (BaseOps.LINE_ADD, line_increment),
+            (BaseOps.ADVANCE_OP, op_advance),
+            (BaseOps.APPEND_MATRIX,),
+            (BaseOps.BASIC_BLOCK_SET, False),
+            (BaseOps.PROLOGUE_END_SET, False),
+            (BaseOps.EPILOGUE_BEGIN_SET, False),
+            (BaseOps.DISCRIMINATOR_SET, 0),
         )
+
+    @classmethod
+    def from_standard_opcode(cls, state, opcode, operands):
+        if opcode == DW_LNS.DW_LNS_copy:
+            return cls(
+                (BaseOps.APPEND_MATRIX,),
+                (BaseOps.BASIC_BLOCK_SET, False),
+                (BaseOps.PROLOGUE_END_SET, False),
+                (BaseOps.EPILOGUE_BEGIN_SET, False),
+                (BaseOps.DISCRIMINATOR_SET, 0),
+            )
 
     def __repr__(self):
         return f"Operation(line={self.line_set}, addr={self.address_set}, op_index={self.op_index_set})"
