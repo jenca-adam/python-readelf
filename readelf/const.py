@@ -749,6 +749,7 @@ class DW_LNE(enum.Enum, metaclass=HasUserMeta):
 
 
 class DW_MACRO(enum.Enum, metaclass=HasUserMeta):
+    DW_MACRO_null = 0x00
     DW_MACRO_define = 0x01
     DW_MACRO_undef = 0x02
     DW_MACRO_start_file = 0x03

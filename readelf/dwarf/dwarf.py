@@ -41,7 +41,7 @@ class DWARF:
         self.macros = []
         if self.debug_macro:
             _debug_macro_stream = io.BytesIO(self.debug_macro.content)
-            self.macros.append(MacroUnit.parse(self, _debug_macro_stream))
+            self.macros.append(MacroUnit.parse(self, _debug_macro_stream, self.units[0]))
         _debug_abbrev = io.BytesIO(self.debug_abbrev.content)
         self.abbrevs = parse_abbr_section(_debug_abbrev)
         print(self.abbrevs.tables)
