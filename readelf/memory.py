@@ -2,9 +2,10 @@ class Memory:
     def __init__(self):
         self.items = {}
         self.index = 0
-        self.size  = 0
+        self.size = 0
+
     def alloc(self, addr, section):
-        self.size = max(addr+section.size, self.size)
+        self.size = max(addr + section.size, self.size)
         self.items[addr] = (section.content, section)
 
     def seek(self, addr):
@@ -17,9 +18,10 @@ class Memory:
         for addr, (_, section) in self.items.items():
             if addr <= taddr <= addr + section.size:
                 return section
+
     def read(self, n=None):
         if n is None:
-            n=self.size-self.index
+            n = self.size - self.index
         right_bound = self.index + n
         output = bytearray(n)
         for addr, (content, _) in self.items.items():

@@ -38,11 +38,13 @@ def _read_formatted(stream, dummycu):
         entries.append(entry)
     return entries
 
+
 def get_directory_name(dir_st):
     for et, arg in dir_st:
         if et == DW_LNCT.DW_LNCT_path:
             return arg
     return None
+
 
 class File:
     def __init__(self, entries, directories):
@@ -66,9 +68,11 @@ class File:
                 self.md5 = arg
         if self.path is not None and self.directory is not None:
             self.full_path = os.path.join(self.directory, self.path)
-    
+
     def __repr__(self):
         return f"<File {self.full_path!r}>"
+
+
 class BaseOps(enum.Enum):
     ADDR_ADD = 0
     ADDR_SET = 1
@@ -91,20 +95,22 @@ class BaseOps(enum.Enum):
     APPEND_MATRIX = 18
     RESET_STMT = 19
 
+
 @dataclass
 class MatrixEntry:
-    addr:int
-    op_index:int
-    file:File
-    line:int
-    column:int
-    is_stmt:bool
-    basic_block:bool
-    end_sequence:bool
-    prologue_end:bool
-    epilogue_begin:bool
-    isa:int
-    discriminator:0
+    addr: int
+    op_index: int
+    file: File
+    line: int
+    column: int
+    is_stmt: bool
+    basic_block: bool
+    end_sequence: bool
+    prologue_end: bool
+    epilogue_begin: bool
+    isa: int
+    discriminator: 0
+
 
 class State:
     def __init__(self, default_is_stmt, files):
@@ -193,7 +199,7 @@ class ProgramInstr:
                 new_op_index = (
                     state.op_index + opargs[0]
                 ) % maximum_operations_per_instruction
-                
+
                 state.addr = state.addr + minimum_instruction_length * (
                     (state.op_index + opargs[0]) // maximum_operations_per_instruction
                 )
