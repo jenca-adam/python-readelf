@@ -5,6 +5,7 @@ from .unit import CompilationUnit
 from readelf.helpers import endian_read, endian_parse, read_struct
 from readelf.const import DW_FORM, DW_LNCT, ARCH, DW_LNS, DW_LNE
 import enum
+import os
 import io
 from dataclasses import dataclass
 
@@ -37,6 +38,34 @@ def _read_formatted(stream, dummycu):
         entries.append(entry)
     return entries
 
+def get_directory_name(dir_st):
+    for et, arg in dir_st:
+        if et == DW_LNCT.DW_LNCT_path:
+            return arg
+    return None
+
+class File:
+    def __init__(self, entries, directories):
+        self.path = None
+        self.full_path = None
+        self.directory = None
+        self.timestamp = None
+        self.size = None
+        self.md5 = None
+        for et, arg in entries:
+            if et == DW_LNCT.DW_LNCT_path:
+                self.path = arg
+            elif et == DW_LNCT.DW_LNCT_directory_index:
+                dir_st = directories[arg]
+                self.directory = get_directory_name(dir_st)
+            elif et == DW_LNCT.DW_LNCT_timestamp:
+                self.timestamp = arg
+            elif et == DW_LNCT.DW_LNCT_size:
+                self.size = arg
+            elif et == DW_LNCT.DW_LNCT_MD5:
+                self.md5 = arg
+        if self.path is not None and self.directory is not None:
+            self.full_path = os.path.join(self.directory, self.path)
 
 class BaseOps(enum.Enum):
     ADDR_ADD = 0
@@ -60,11 +89,25 @@ class BaseOps(enum.Enum):
     APPEND_MATRIX = 18
     RESET_STMT = 19
 
+@dataclass
+class MatrixEntry:
+    addr:int
+    op_index:int
+    file:File
+    line:int
+    column:int
+    is_stmt:bool
+    basic_block:bool
+    end_sequence:bool
+    prologue_end:bool
+    epilogue_begin:bool
+    isa:int
+    discriminator:0
 
 class State:
     def __init__(self, default_is_stmt, files):
         self._files = files
-        self.address = 0
+        self.addr = 0
         self.op_index = 0
         self.file = 1
         self.line = 1
@@ -84,8 +127,8 @@ class State:
 
     def append_matrix(self):
         self.matrix.append(
-            (
-                self.address,
+            MatrixEntry(
+                self.addr,
                 self.op_index,
                 self._files[self.file],
                 self.line,
@@ -112,6 +155,7 @@ class ProgramInstr:
             if op == BaseOps.ADDR_ADD:
                 state.addr += opargs[0]
             if op == BaseOps.ADDR_SET:
+                print("set Address to", hex(opargs[0]))
                 state.addr = opargs[0]
             if op == BaseOps.OP_INDEX_ADD:
                 state.op_index += opargs[0]
@@ -128,6 +172,7 @@ class ProgramInstr:
             if op == BaseOps.COLUMN_SET:
                 state.column = opargs[0]
             if op == BaseOps.IS_STMT_TOGGLE:
+                print("toggle")
                 state.is_stmt = not state.is_stmt
             if op == BaseOps.IS_STMT_SET:
                 state.is_stmt = bool(opargs[0])
@@ -144,12 +189,14 @@ class ProgramInstr:
             if op == BaseOps.DISCRIMINATOR_SET:
                 state.discriminator = opargs[0]
             if op == BaseOps.ADVANCE_PC:
-                state.op_index = (
+                new_op_index = (
                     state.op_index + opargs[0]
                 ) % maximum_operations_per_instruction
-                state.address = state.address + minimum_instruction_length * (
+                
+                state.addr = state.addr + minimum_instruction_length * (
                     (state.op_index + opargs[0]) // maximum_operations_per_instruction
                 )
+                state.op_index = new_op_index
             if op == BaseOps.APPEND_MATRIX:
                 state.append_matrix()
             if op == BaseOps.RESET_STMT:
@@ -357,8 +404,8 @@ class LnoProgram:
         ) = read_struct(stream, "BBBbBB")
         std_opcode_lengths = read_struct(stream, f"{opcode_base-1}B")
         directories = _read_formatted(stream, dummycu)
-        file_names = _read_formatted(stream, dummycu)
-        state = State(bool(default_is_stmt), file_names)
+        files = [File(f, directories) for f in _read_formatted(stream, dummycu)]
+        state = State(bool(default_is_stmt), files)
         prog_end = stream.tell() + prog_size
         while stream.tell() < prog_end:
             instr = ProgramInstr.parse(
@@ -372,6 +419,7 @@ class LnoProgram:
                 max_op_per_instr,
                 dwarf,
             )
+            print(instr.base_ops)
             instr.execute(state, min_instr_length, max_op_per_instr)
         return cls(
             unit_length,
@@ -388,6 +436,6 @@ class LnoProgram:
             opcode_base,
             std_opcode_lengths,
             directories,
-            file_names,
+            files,
             state.matrix,
         )
