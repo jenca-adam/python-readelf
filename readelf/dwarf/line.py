@@ -66,7 +66,9 @@ class File:
                 self.md5 = arg
         if self.path is not None and self.directory is not None:
             self.full_path = os.path.join(self.directory, self.path)
-
+    
+    def __repr__(self):
+        return f"<File {self.full_path!r}>"
 class BaseOps(enum.Enum):
     ADDR_ADD = 0
     ADDR_SET = 1
@@ -172,7 +174,6 @@ class ProgramInstr:
             if op == BaseOps.COLUMN_SET:
                 state.column = opargs[0]
             if op == BaseOps.IS_STMT_TOGGLE:
-                print("toggle")
                 state.is_stmt = not state.is_stmt
             if op == BaseOps.IS_STMT_SET:
                 state.is_stmt = bool(opargs[0])
@@ -246,7 +247,10 @@ class ProgramInstr:
         elif opcode == DW_LNS.DW_LNS_set_basic_block:
             return cls((BaseOps.BASIC_BLOCK_SET, *operands))
         elif opcode == DW_LNS.DW_LNS_const_add_pc:
-            return cls.from_special_opcode(255, opcode_base, line_base, line_range)
+            adjusted = 255 - opcode_base
+            op_advance = adjusted // line_range
+
+            return cls((BaseOps.ADVANCE_PC, op_advance))
         elif opcode == DW_LNS.DW_LNS_fixed_advance_pc:
             return cls((BaseOps.LINE_ADD, *operands), (BaseOps.OP_INDEX_SET, 0))
         elif opcode == DW_LNS.DW_LNS_set_prologue_end:
@@ -313,7 +317,7 @@ class ProgramInstr:
                     endian_read(stream, dwarf.elf_file.endian, 2) for _ in range(n_ops)
                 ]
             else:
-                operands = [leb128_parse(stream) for _ in range(n_ops)]
+                operands = [leb128_parse(stream, signed=True) for _ in range(n_ops)]
             return cls.from_standard_opcode(
                 typ, operands, opcode_base, line_base, line_range
             )
@@ -343,8 +347,8 @@ class LnoProgram:
         opcode_base,
         std_opcode_lengths,
         directories,
-        file_names,
-        prog,
+        files,
+        matrix,
     ):
         self.unit_length = unit_length
         self.arch = arch
@@ -360,8 +364,8 @@ class LnoProgram:
         self.opcode_base = opcode_base
         self.std_opcode_lengths = std_opcode_lengths
         self.directories = directories
-        self.file_names = file_names
-        self.prog = prog
+        self.files = files
+        self.matrix = matrix
 
     @classmethod
     def parse(cls, dwarf, stream):
@@ -419,7 +423,6 @@ class LnoProgram:
                 max_op_per_instr,
                 dwarf,
             )
-            print(instr.base_ops)
             instr.execute(state, min_instr_length, max_op_per_instr)
         return cls(
             unit_length,

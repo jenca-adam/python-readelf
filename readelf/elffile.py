@@ -52,6 +52,7 @@ class ELFFile:
                 self.memory.alloc(section.addr, section)
             if hasattr(section, "_after_init"):
                 section._after_init()
+        self.memory.seek(0)
         self.close()
 
     def get_dwarf(self):
