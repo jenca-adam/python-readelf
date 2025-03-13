@@ -33,9 +33,7 @@ def _read_formatted(stream, meta):
         entry = []
         for field in entry_fmt:
             type_code, form = field
-            entry.append(
-                (type_code, parse_form(form, stream, meta, None))
-            )  # no supp
+            entry.append((type_code, parse_form(form, stream, meta, None)))  # no supp
         entries.append(entry)
     return entries
 

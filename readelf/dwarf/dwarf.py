@@ -3,11 +3,13 @@ from .abbr import parse_abbr_section
 from .unit import CompilationUnit
 from .line import LnoProgram
 from .macro import MacroUnit
+from .die import DIEPtr
 import io
 
 
 class DWARF:
     def __init__(self, elf_file):
+        self._dieptrclass = DIEPtr
         self.elf_file = elf_file
         (
             self.debug_info,
@@ -38,9 +40,9 @@ class DWARF:
         if self.debug_line:
             self._debug_line_stream = io.BytesIO(self.debug_line.content)
             while not is_eof(self._debug_line_stream):
-                offset=self._debug_line_stream.tell()
-                lnop = (LnoProgram.parse(self, self._debug_line_stream))
-                self._lnocache[offset]=lnop
+                offset = self._debug_line_stream.tell()
+                lnop = LnoProgram.parse(self, self._debug_line_stream)
+                self._lnocache[offset] = lnop
 
         self.macros = []
         if self.debug_macro:
@@ -57,12 +59,13 @@ class DWARF:
                 index += 1
         _debug_abbrev = io.BytesIO(self.debug_abbrev.content)
         self.abbrevs = parse_abbr_section(_debug_abbrev)
+
     def lnop_at_offset(self, offset):
         if offset in self._lnocache:
             return self._lnocache[offset]
         self._debug_line_stream.seek(offset)
-        lnop = (LnoProgram.parse(self, self._debug_line_stream))
-        self._lnocache[offset]=lnop
+        lnop = LnoProgram.parse(self, self._debug_line_stream)
+        self._lnocache[offset] = lnop
         return lnop
 
     def cu_at_offset(self, offset):

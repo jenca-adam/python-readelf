@@ -5,7 +5,7 @@ import io
 
 
 def make_dieptr(meta, off):
-    return meta._dieptrclass(meta, off, False)
+    return meta.dwarf._dieptrclass(meta, off, False)
 
 
 def parse_ref1(stream, meta, supp):

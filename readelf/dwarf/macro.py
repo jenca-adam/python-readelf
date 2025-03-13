@@ -36,7 +36,8 @@ class Macro:
     def parse(cls, stream, opcode_operands_table, meta, dwarf, lnop, file_stack):
         opcode = DW_MACRO(read_struct(stream, "B")[0])
         operands = [
-            parse_form(form, stream, meta, None) for form in opcode_operands_table[opcode]
+            parse_form(form, stream, meta, None)
+            for form in opcode_operands_table[opcode]
         ]
         if opcode == DW_MACRO.DW_MACRO_null:
             yield False
@@ -44,9 +45,7 @@ class Macro:
         else:
             yield True
         if opcode == DW_MACRO.DW_MACRO_import:
-            operands[0] = MacroUnitPtr(
-                stream, operands[0], dwarf, file_stack.copy()
-            )
+            operands[0] = MacroUnitPtr(stream, operands[0], dwarf, file_stack.copy())
         elif opcode == DW_MACRO.DW_MACRO_start_file and lnop:
             try:
                 file = lnop.files[operands[1]]
@@ -79,9 +78,7 @@ class MacroUnitPtr:
         if self._content is None:
             old_offset = self.stream.tell()
             self.stream.seek(self.offset)
-            self._content = MacroUnit.parse(
-                self.dwarf, self.stream,  self.file_stack
-            )
+            self._content = MacroUnit.parse(self.dwarf, self.stream, self.file_stack)
             self.stream.seek(old_offset)
         return self._content
 
@@ -96,10 +93,10 @@ class MacroUnit:
         self.opcode_operands_table = opcode_operands_table
 
     @classmethod
-    def parse(cls, dwarf, stream,  file_stack=None):
+    def parse(cls, dwarf, stream, file_stack=None):
         if file_stack is None:
             file_stack = []
-        
+
         (version,) = read_struct(stream, "H", dwarf.elf_file.endian)
         if version != 5:
             raise DWARFError(
@@ -107,7 +104,13 @@ class MacroUnit:
             )
 
         flags = MacroUnitFlags(read_struct(stream, "B")[0])
-        meta = DWARFMeta(ARCH.ARCH_64 if flags.offset_size_flag else ARCH.ARCH_32, dwarf.elf_file.endian, flags.offset_size, dwarf, version)
+        meta = DWARFMeta(
+            ARCH.ARCH_64 if flags.offset_size_flag else ARCH.ARCH_32,
+            dwarf.elf_file.endian,
+            flags.offset_size,
+            dwarf,
+            version,
+        )
         if flags.debug_line_offset_flag:
             debug_line_offset = endian_read(
                 stream, dwarf.elf_file.endian, flags.offset_size

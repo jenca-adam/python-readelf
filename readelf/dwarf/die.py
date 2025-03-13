@@ -27,11 +27,11 @@ class DIE:
         abbr_entry = cu.abbr_tab.by_code(abbr_code)
         attrs = {}
         for attrib in abbr_entry.attributes:
-            
+
             attr, form = attrib
-            
+
             attrs[attr] = parse_attrib(attr, form, stream, cu.meta)
-            print(attr,form,attrs[attr])
+            print(attr, form, attrs[attr])
         end = stream.tell()
         return cls(cu, abbr_entry, attrs, end - start)
 
@@ -42,14 +42,14 @@ class DIE:
 
 
 class DIEPtr:
-    def __init__(self, cu, addr, absolute=False):
+    def __init__(self, meta, addr, absolute=False):
+        self.meta = meta
+        self.cu = meta.dwarf.cu_at_offset(addr)
         if absolute:
-            self.cu = cu.parent.cu_at_offset(addr)
             self.addr = addr - self.cu.section_offset
         else:
             self.addr = addr
-            self.cu = cu
-            self.absolute = absolute
+        self.absolute = absolute
 
     @property
     def content(self):

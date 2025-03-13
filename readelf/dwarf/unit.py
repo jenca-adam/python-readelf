@@ -6,6 +6,7 @@ from .leb128 import leb128_parse
 from .die import DIE, DIEPtr
 from .meta import DWARFMeta
 
+
 class CompilationUnit:
     _dieptrclass = DIEPtr  # UGLY
 
@@ -42,7 +43,13 @@ class CompilationUnit:
         self.header_size = header_size
         self.content_size = content_size
         self.die_cache = {}
-        self.meta = DWARFMeta(self.arch, self.parent.elf_file.endian, self.addr_size, self.parent, self.version)
+        self.meta = DWARFMeta(
+            self.arch,
+            self.parent.elf_file.endian,
+            self.addr_size,
+            self.parent,
+            self.version,
+        )
 
     @property
     def abbr_tab(self):
