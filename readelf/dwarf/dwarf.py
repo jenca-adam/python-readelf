@@ -41,10 +41,20 @@ class DWARF:
         self.macros = []
         if self.debug_macro:
             _debug_macro_stream = io.BytesIO(self.debug_macro.content)
-            self.macros.append(MacroUnit.parse(self, _debug_macro_stream, self.units[0]))
+            index = 0
+            while not is_eof(_debug_macro_stream):
+                self.macros.append(
+                    MacroUnit.parse(
+                        self,
+                        _debug_macro_stream,
+                        self.units[index],
+                        self.lnos[index] if self.lnos else None,
+                    )
+                )
+                print(hex(_debug_macro_stream.tell()))
+                index += 1
         _debug_abbrev = io.BytesIO(self.debug_abbrev.content)
         self.abbrevs = parse_abbr_section(_debug_abbrev)
-        print(self.abbrevs.tables)
 
     def cu_at_offset(self, offset):
         for unit in self.units:

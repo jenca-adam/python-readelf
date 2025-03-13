@@ -1,6 +1,7 @@
 from readelf.dwarf.leb128 import leb128_parse
 from readelf.helpers import endian_read
 
+
 def parse_data1(stream, cu, supp):
     return endian_read(stream, cu.parent.elf_file.endian, 1)
 
