@@ -9,7 +9,7 @@ OPCODE_OPERANDS_TABLE = {
     DW_MACRO.DW_MACRO_undef: (DW_FORM.DW_FORM_udata, DW_FORM.DW_FORM_string),
     DW_MACRO.DW_MACRO_define_strp: (DW_FORM.DW_FORM_udata, DW_FORM.DW_FORM_strp),
     DW_MACRO.DW_MACRO_undef_strp: (DW_FORM.DW_FORM_udata, DW_FORM.DW_FORM_strp),
-    DW_MACRO.DW_MACRO_start_file: (DW_FORM.DW_FORM_udata, DW_FORM.DW_FORM_data1),
+    DW_MACRO.DW_MACRO_start_file: (DW_FORM.DW_FORM_udata, DW_FORM.DW_FORM_udata),
     DW_MACRO.DW_MACRO_end_file: (),
     DW_MACRO.DW_MACRO_import: (DW_FORM.DW_FORM_sec_offset,),
     DW_MACRO.DW_MACRO_null: (),
