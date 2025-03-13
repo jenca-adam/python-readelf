@@ -2,6 +2,7 @@ from .err import DWARFError
 from .leb128 import leb128_parse
 from .attribs.form import parse_form
 from .unit import CompilationUnit
+from .meta import DWARFMeta
 from readelf.helpers import endian_read, endian_parse, read_struct
 from readelf.const import DW_FORM, DW_LNCT, ARCH, DW_LNS, DW_LNE
 import enum
@@ -10,7 +11,7 @@ import io
 from dataclasses import dataclass
 
 
-def _read_formatted(stream, dummycu):
+def _read_formatted(stream, meta):
     # used for the file_names and directories fields
     (fmt_cnt,) = read_struct(stream, "B")
     entry_fmt = []
@@ -33,7 +34,7 @@ def _read_formatted(stream, dummycu):
         for field in entry_fmt:
             type_code, form = field
             entry.append(
-                (type_code, parse_form(form, stream, dummycu, None))
+                (type_code, parse_form(form, stream, meta, None))
             )  # no supp
         entries.append(entry)
     return entries
@@ -344,7 +345,7 @@ class LnoProgram:
         version,
         addr_size,
         segment_sel_size,
-        dummycu,
+        meta,
         min_instr_length,
         max_op_per_instr,
         default_is_stmt,
@@ -361,7 +362,7 @@ class LnoProgram:
         self.version = version
         self.addr_size = addr_size
         self.segment_sel_size = segment_sel_size
-        self._dummycu = dummycu
+        self.meta = meta
         self.min_instr_length = min_instr_length
         self.max_op_per_instr = max_op_per_instr
         self.default_is_stmt = default_is_stmt
@@ -397,9 +398,7 @@ class LnoProgram:
         # XXX: this is only temporary
         # TODO: replace with a more robust system before merging (dataclass?)
 
-        dummycu = CompilationUnit(
-            0, arch, 5, None, 0, addr_size, None, b"", dwarf, None, 0, 0, 0, 0
-        )
+        meta = DWARFMeta(arch, dwarf.elf_file.endian, addr_size, dwarf, version)
         header_length = endian_read(stream, dwarf.elf_file.endian, unit_length_size)
         prog_offset = stream.tell() - offset + header_length
         prog_size = unit_length - prog_offset + unit_length_size  # right??
@@ -413,8 +412,8 @@ class LnoProgram:
             opcode_base,
         ) = read_struct(stream, "BBBbBB")
         std_opcode_lengths = read_struct(stream, f"{opcode_base-1}B")
-        directories = _read_formatted(stream, dummycu)
-        files = [File(f, directories) for f in _read_formatted(stream, dummycu)]
+        directories = _read_formatted(stream, meta)
+        files = [File(f, directories) for f in _read_formatted(stream, meta)]
         state = State(bool(default_is_stmt), files)
         prog_end = stream.tell() + prog_size
         while stream.tell() < prog_end:
@@ -436,7 +435,7 @@ class LnoProgram:
             version,
             addr_size,
             segment_sel_size,
-            dummycu,
+            meta,
             min_instr_length,
             max_op_per_instr,
             default_is_stmt,

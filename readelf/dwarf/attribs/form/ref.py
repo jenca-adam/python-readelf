@@ -4,60 +4,60 @@ from ..as_int import parse_as_int
 import io
 
 
-def make_dieptr(cu, off):
-    return cu._dieptrclass(cu, off, False)
+def make_dieptr(meta, off):
+    return meta._dieptrclass(meta, off, False)
 
 
-def parse_ref1(stream, cu, supp):
+def parse_ref1(stream, meta, supp):
     return make_dieptr(
-        cu,
+        meta,
         parse_as_int(
-            parse_data1(stream, cu, supp),
-            cu,
+            parse_data1(stream, meta, supp),
+            meta,
         ),
     )
 
 
-def parse_ref2(stream, cu, supp):
+def parse_ref2(stream, meta, supp):
     return make_dieptr(
-        cu,
+        meta,
         parse_as_int(
-            parse_data2(stream, cu, supp),
-            cu,
+            parse_data2(stream, meta, supp),
+            meta,
         ),
     )
 
 
-def parse_ref4(stream, cu, supp):
+def parse_ref4(stream, meta, supp):
     return make_dieptr(
-        cu,
+        meta,
         parse_as_int(
-            parse_data4(stream, cu, supp),
-            cu,
+            parse_data4(stream, meta, supp),
+            meta,
         ),
     )
 
 
-def parse_ref8(stream, cu, supp):
+def parse_ref8(stream, meta, supp):
     return make_dieptr(
-        cu,
+        meta,
         parse_as_int(
-            parse_data8(stream, cu, supp),
-            cu,
+            parse_data8(stream, meta, supp),
+            meta,
         ),
     )
 
 
-def parse_ref_udata(stream, cu, supp):
+def parse_ref_udata(stream, meta, supp):
     return make_dieptr(
-        cu,
+        meta,
         parse_as_int(
-            parse_udata(stream, cu, supp),
-            cu,
+            parse_udata(stream, meta, supp),
+            meta,
         ),
     )
 
 
-def parse_ref_addr(stream, cu, supp):
-    offset_int = parse_sec_offset(stream, cu, supp)
-    return cu._dieptrclass(cu, offset_int, True)
+def parse_ref_addr(stream, meta, supp):
+    offset_int = parse_sec_offset(stream, meta, supp)
+    return meta._dieptrclass(meta, offset_int, True)

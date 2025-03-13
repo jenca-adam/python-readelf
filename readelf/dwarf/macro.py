@@ -1,8 +1,9 @@
 from readelf.helpers import read_struct, endian_read
-from readelf.const import DW_FORM, DW_MACRO
+from readelf.const import DW_FORM, DW_MACRO, ARCH
 from .leb128 import leb128_parse
 from .attribs.form import parse_form
 from .err import DWARFError
+from .meta import DWARFMeta
 
 OPCODE_OPERANDS_TABLE = {
     DW_MACRO.DW_MACRO_define: (DW_FORM.DW_FORM_udata, DW_FORM.DW_FORM_string),
@@ -33,10 +34,10 @@ class Macro:
         self.__dict__.update(kwargs)
 
     @classmethod
-    def parse(cls, stream, opcode_operands_table, cu, dwarf, lnop, file_stack):
+    def parse(cls, stream, opcode_operands_table, meta, dwarf, lnop, file_stack):
         opcode = DW_MACRO(read_struct(stream, "B")[0])
         operands = [
-            parse_form(form, stream, cu, None) for form in opcode_operands_table[opcode]
+            parse_form(form, stream, meta, None) for form in opcode_operands_table[opcode]
         ]
         if opcode == DW_MACRO.DW_MACRO_null:
             yield False
@@ -45,7 +46,7 @@ class Macro:
             yield True
         if opcode == DW_MACRO.DW_MACRO_import:
             operands[0] = MacroUnitPtr(
-                stream, operands[0], dwarf, cu, lnop, file_stack.copy()
+                stream, operands[0], dwarf, file_stack.copy()
             )
         elif opcode == DW_MACRO.DW_MACRO_start_file and lnop:
             try:
@@ -67,12 +68,10 @@ class Macro:
 
 
 class MacroUnitPtr:
-    def __init__(self, stream, offset, dwarf, cu, lnop, file_stack):
+    def __init__(self, stream, offset, dwarf, file_stack):
         self.stream = stream
         self.offset = offset
         self.dwarf = dwarf
-        self.cu = cu
-        self.lnop = lnop
         self.file_stack = file_stack
         self._content = None
 
@@ -82,7 +81,7 @@ class MacroUnitPtr:
             old_offset = self.stream.tell()
             self.stream.seek(self.offset)
             self._content = MacroUnit.parse(
-                self.dwarf, self.stream, self.cu, self.lnop, self.file_stack
+                self.dwarf, self.stream,  self.file_stack
             )
             self.stream.seek(old_offset)
         return self._content
@@ -98,24 +97,25 @@ class MacroUnit:
         self.opcode_operands_table = opcode_operands_table
 
     @classmethod
-    def parse(cls, dwarf, stream, cu, lnop, file_stack=None):
+    def parse(cls, dwarf, stream,  file_stack=None):
         if file_stack is None:
             file_stack = []
-
+        
         (version,) = read_struct(stream, "H", dwarf.elf_file.endian)
         if version != 5:
             raise DWARFError(
-                f"can't read macro unit header: only version 5 is currently supported ({version=})"
+                f"can't read macro unit header: only version 5 is metarrently supported ({version=})"
             )
 
         flags = MacroUnitFlags(read_struct(stream, "B")[0])
+        meta = DWARFMeta(ARCH.ARCH_64 if flags.offset_size_flag else ARCH.ARCH_32, dwarf.elf_file.endian, flags.offset_size, dwarf, version)
         if flags.debug_line_offset_flag:
             debug_line_offset = endian_read(
                 stream, dwarf.elf_file.endian, flags.offset_size
             )
         else:
-            debug_line_offset = None
-
+            debug_line_offset = 0
+        lnop = dwarf.lnop_at_offset(debug_line_offset)
         opcode_operands_table = OPCODE_OPERANDS_TABLE
         if flags.opcode_operands_table_flag:
             (count,) = read_struct(stream, "B")
@@ -129,7 +129,7 @@ class MacroUnit:
         macros = []
         while True:
             gen = Macro.parse(
-                stream, opcode_operands_table, cu, dwarf, lnop, file_stack
+                stream, opcode_operands_table, meta, dwarf, lnop, file_stack
             )
             if not next(gen):
                 break

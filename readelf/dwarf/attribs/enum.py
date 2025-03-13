@@ -3,8 +3,8 @@ from .as_int import parse_as_int
 
 
 def make_enum_parser(enum, lo_user_name=None, hi_user_name=None):
-    def parse_enum(form, cu):
-        form = parse_as_int(form, cu)
+    def parse_enum(form, meta):
+        form = parse_as_int(form, meta)
         lo_user = getattr(enum, lo_user_name, None)
         hi_user = getattr(enum, hi_user_name, None)
         if lo_user and hi_user:

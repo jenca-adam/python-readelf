@@ -28,7 +28,7 @@ class DIE:
         attrs = {}
         for attrib in abbr_entry.attributes:
             attr, form = attrib
-            attrs[attr] = parse_attrib(attr, form, stream, cu)
+            attrs[attr] = parse_attrib(attr, form, stream, cu.meta)
         end = stream.tell()
         return cls(cu, abbr_entry, attrs, end - start)
 

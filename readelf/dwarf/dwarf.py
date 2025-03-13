@@ -30,31 +30,40 @@ class DWARF:
             errmsg="file has missing debug information: missing section: {!r}",
         )
         self.units = []
-        _debug_info_stream = io.BytesIO(self.debug_info.content)
-        while not is_eof(_debug_info_stream):
-            self.units.append(CompilationUnit.parse(self, _debug_info_stream))
+        self._debug_info_stream = io.BytesIO(self.debug_info.content)
+        while not is_eof(self._debug_info_stream):
+            self.units.append(CompilationUnit.parse(self, self._debug_info_stream))
         self.lnos = []
+        self._lnocache = {}
         if self.debug_line:
-            _debug_line_stream = io.BytesIO(self.debug_line.content)
-            while not is_eof(_debug_line_stream):
-                self.lnos.append(LnoProgram.parse(self, _debug_line_stream))
+            self._debug_line_stream = io.BytesIO(self.debug_line.content)
+            while not is_eof(self._debug_line_stream):
+                offset=self._debug_line_stream.tell()
+                lnop = (LnoProgram.parse(self, self._debug_line_stream))
+                self._lnocache[offset]=lnop
+
         self.macros = []
         if self.debug_macro:
-            _debug_macro_stream = io.BytesIO(self.debug_macro.content)
+            self._debug_macro_stream = io.BytesIO(self.debug_macro.content)
             index = 0
-            while not is_eof(_debug_macro_stream):
+            while not is_eof(self._debug_macro_stream):
                 self.macros.append(
                     MacroUnit.parse(
                         self,
-                        _debug_macro_stream,
-                        self.units[index],
-                        self.lnos[index] if self.lnos else None,
+                        self._debug_macro_stream,
                     )
                 )
-                print(hex(_debug_macro_stream.tell()))
+                print(hex(self._debug_macro_stream.tell()))
                 index += 1
         _debug_abbrev = io.BytesIO(self.debug_abbrev.content)
         self.abbrevs = parse_abbr_section(_debug_abbrev)
+    def lnop_at_offset(self, offset):
+        if offset in self._lnocache:
+            return self._lnocache[offset]
+        self._debug_line_stream.seek(offset)
+        lnop = (LnoProgram.parse(self, self._debug_line_stream))
+        self._lnocache[offset]=lnop
+        return lnop
 
     def cu_at_offset(self, offset):
         for unit in self.units:
