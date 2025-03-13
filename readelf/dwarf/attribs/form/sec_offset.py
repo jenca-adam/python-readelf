@@ -3,4 +3,5 @@ from readelf.const import ARCH
 
 
 def parse_sec_offset(stream, meta, supp):
-    return endian_read(stream, meta.endian, meta.addr_size)
+    addr_size = 8 if meta.arch==ARCH.ARCH_64 else 4
+    return endian_read(stream, meta.endian, addr_size)

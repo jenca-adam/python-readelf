@@ -27,8 +27,11 @@ class DIE:
         abbr_entry = cu.abbr_tab.by_code(abbr_code)
         attrs = {}
         for attrib in abbr_entry.attributes:
+            
             attr, form = attrib
+            
             attrs[attr] = parse_attrib(attr, form, stream, cu.meta)
+            print(attr,form,attrs[attr])
         end = stream.tell()
         return cls(cu, abbr_entry, attrs, end - start)
 

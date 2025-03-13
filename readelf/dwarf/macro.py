@@ -30,7 +30,6 @@ class Macro:
         self.opcode = opcode
         self.operands = operands
         self.file = file
-        print(self)
         self.__dict__.update(kwargs)
 
     @classmethod
