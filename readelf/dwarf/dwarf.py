@@ -3,6 +3,7 @@ from .abbr import parse_abbr_section
 from .unit import CompilationUnit
 from .line import LnoProgram
 from .macro import MacroUnit
+from .aranges import AddressRangesSet
 from .die import DIEPtr
 import io
 
@@ -19,6 +20,7 @@ class DWARF:
             self.debug_str,
             self.debug_line_str,
             self.debug_macro,
+            self.debug_aranges,
         ) = extract_sections(
             elf_file,
             ".debug_info",
@@ -28,6 +30,7 @@ class DWARF:
             ".debug_str",
             ".debug_line_str",
             ".debug_macro",
+            ".debug_aranges",
             required=[0, 1],
             errmsg="file has missing debug information: missing section: {!r}",
         )
@@ -47,7 +50,6 @@ class DWARF:
         self.macros = []
         if self.debug_macro:
             self._debug_macro_stream = io.BytesIO(self.debug_macro.content)
-            index = 0
             while not is_eof(self._debug_macro_stream):
                 self.macros.append(
                     MacroUnit.parse(
@@ -55,8 +57,14 @@ class DWARF:
                         self._debug_macro_stream,
                     )
                 )
-                print(hex(self._debug_macro_stream.tell()))
-                index += 1
+        self.address_ranges = []
+        if self.debug_aranges:
+            self._debug_aranges_stream = io.BytesIO(self.debug_aranges.content)
+            while not is_eof(self._debug_aranges_stream):
+                self.address_ranges.append(
+                    AddressRangesSet.parse(self, self._debug_aranges_stream)
+                )
+
         _debug_abbrev = io.BytesIO(self.debug_abbrev.content)
         self.abbrevs = parse_abbr_section(_debug_abbrev)
 

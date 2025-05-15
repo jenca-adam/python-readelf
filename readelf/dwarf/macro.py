@@ -100,7 +100,7 @@ class MacroUnit:
         (version,) = read_struct(stream, "H", dwarf.elf_file.endian)
         if version != 5:
             raise DWARFError(
-                f"can't read macro unit header: only version 5 is metarrently supported ({version=})"
+                f"can't read macro unit header: only version 5 is currently supported ({version=})"
             )
 
         flags = MacroUnitFlags(read_struct(stream, "B")[0])
