@@ -53,9 +53,9 @@ def parse_header(buf):
     if et in ET:
         e_type = ET(et)
     elif ET_LOOS <= et <= ET_HIOS:
-        e_type = ET_OS
+        e_type = ET.ET_OS
     elif ET_LOPROC <= et <= ET_HIPROC:
-        e_type = ET_PROC
+        e_type = ET.ET_PROC
     else:
         raise ParseError(f"Invalid e_type {hex(et)}")
     output["type"] = e_type
