@@ -30,8 +30,7 @@ class DIE:
 
             attr, form = attrib
 
-            attrs[attr] = parse_attrib(attr, form, stream, cu.meta)
-            print(attr, form, attrs[attr])
+            attrs[attr] = parse_attrib(attr, form, stream, cu.meta, cu)
         end = stream.tell()
         return cls(cu, abbr_entry, attrs, end - start)
 
@@ -42,18 +41,24 @@ class DIE:
 
 
 class DIEPtr:
-    def __init__(self, meta, addr, absolute=False):
+    def __init__(self, meta, addr, absolute=False, unit=None):
         self.meta = meta
-        self.cu = meta.dwarf.cu_at_offset(addr)
+        if not absolute and not unit:
+            raise ValueError("relative pointer in an unknown unit")
+        if unit:
+            self.cu = unit
+        else:
+            self.cu = meta.dwarf.cu_at_offset(addr)
         if absolute:
             self.addr = addr - self.cu.section_offset
         else:
             self.addr = addr
         self.absolute = absolute
+        self._addr = addr
 
     @property
     def content(self):
         return self.cu.die_at_offset(self.addr - self.cu.header_size)
 
     def __repr__(self):
-        return f"DIEPtr({self.addr:#x})"
+        return f"DIEPtr({self.addr:#x}[{self._addr:#x}])"

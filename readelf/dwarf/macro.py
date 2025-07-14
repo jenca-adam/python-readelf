@@ -4,6 +4,7 @@ from .leb128 import leb128_parse
 from .attribs.form import parse_form
 from .err import DWARFError
 from .meta import DWARFMeta
+from .die import DIEPtr
 
 OPCODE_OPERANDS_TABLE = {
     DW_MACRO.DW_MACRO_define: (DW_FORM.DW_FORM_udata, DW_FORM.DW_FORM_string),
@@ -36,7 +37,7 @@ class Macro:
     def parse(cls, stream, opcode_operands_table, meta, dwarf, lnop, file_stack):
         opcode = DW_MACRO(read_struct(stream, "B")[0])
         operands = [
-            parse_form(form, stream, meta, None)
+            parse_form(form, stream, meta, None, None)  # no references
             for form in opcode_operands_table[opcode]
         ]
         if opcode == DW_MACRO.DW_MACRO_null:
@@ -110,6 +111,7 @@ class MacroUnit:
             flags.offset_size,
             dwarf,
             version,
+            DIEPtr,
         )
         if flags.debug_line_offset_flag:
             debug_line_offset = endian_read(

@@ -67,6 +67,7 @@ class CompilationUnit:
         parents = []  # stack
         offset = 0
         while offset < self.content_size:
+            cont = False
             die = self.die_at_offset(offset)
             offset += die.size
             if die.is_sentinel:
@@ -81,9 +82,11 @@ class CompilationUnit:
                     continue
             if parents:
                 parents[-1].children.append(die)
-                continue
+                cont = True
             if die.has_children:
                 parents.append(die)
+                cont = True
+            if cont:
                 continue
             yield die
 

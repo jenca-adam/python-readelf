@@ -33,7 +33,10 @@ def _read_formatted(stream, meta):
         entry = []
         for field in entry_fmt:
             type_code, form = field
-            entry.append((type_code, parse_form(form, stream, meta, None)))  # no supp
+            # also no need for a cu since references have no business being here
+            entry.append(
+                (type_code, parse_form(form, stream, meta, None, None))
+            )  # no supp
         entries.append(entry)
     return entries
 
@@ -162,7 +165,6 @@ class ProgramInstr:
             if op == BaseOps.ADDR_ADD:
                 state.addr += opargs[0]
             if op == BaseOps.ADDR_SET:
-                print("set Address to", hex(opargs[0]))
                 state.addr = opargs[0]
             if op == BaseOps.OP_INDEX_ADD:
                 state.op_index += opargs[0]
@@ -400,7 +402,6 @@ class LnoProgram:
         header_length = endian_read(stream, dwarf.elf_file.endian, unit_length_size)
         prog_offset = stream.tell() - offset + header_length
         prog_size = unit_length - prog_offset + unit_length_size  # right??
-        print(prog_size, unit_length, prog_offset + prog_size)
         (
             min_instr_length,
             max_op_per_instr,

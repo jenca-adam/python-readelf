@@ -17,9 +17,9 @@ ATTRIB_PARSER_MAPPING = {
 }
 
 
-def parse_attrib(attr, form, stream, meta):
+def parse_attrib(attr, form, stream, meta, cu):
     form, supp = form
-    form_parsed = parse_form(form, stream, meta, supp)
+    form_parsed = parse_form(form, stream, meta, supp, cu)
     parser = ATTRIB_PARSER_MAPPING.get(attr)
     if parser is None:
         return form_parsed

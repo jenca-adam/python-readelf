@@ -46,6 +46,7 @@ class DWARF:
                 offset = self._debug_line_stream.tell()
                 lnop = LnoProgram.parse(self, self._debug_line_stream)
                 self._lnocache[offset] = lnop
+                self.lnos.append(lnop)
 
         self.macros = []
         if self.debug_macro:
@@ -78,6 +79,10 @@ class DWARF:
 
     def cu_at_offset(self, offset):
         for unit in self.units:
-            if unit.section_offset <= offset <= unit.section_offset + unit.unit_length:
+            if (
+                unit.section_offset
+                <= offset
+                < unit.section_offset + unit.content_size + unit.header_size
+            ):
                 return unit
         raise LookupError(f"No compilation unit at offset {offset:#x}")

@@ -1,4 +1,4 @@
-def parse_string(stream, meta, supp):
+def parse_string(stream, meta, supp, cu):
     outp = []
     while True:
         c = stream.read(1)

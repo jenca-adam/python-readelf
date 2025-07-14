@@ -4,60 +4,65 @@ from ..as_int import parse_as_int
 import io
 
 
-def make_dieptr(meta, off):
-    return meta.dwarf._dieptrclass(meta, off, False)
+def make_dieptr(meta, off, cu):
+    return meta.dwarf._dieptrclass(meta, off, False, cu)
 
 
-def parse_ref1(stream, meta, supp):
+def parse_ref1(stream, meta, supp, cu):
     return make_dieptr(
         meta,
         parse_as_int(
-            parse_data1(stream, meta, supp),
+            parse_data1(stream, meta, supp, cu),
             meta,
         ),
+        cu,
     )
 
 
-def parse_ref2(stream, meta, supp):
+def parse_ref2(stream, meta, supp, cu):
     return make_dieptr(
         meta,
         parse_as_int(
-            parse_data2(stream, meta, supp),
+            parse_data2(stream, meta, supp, cu),
             meta,
         ),
+        cu,
     )
 
 
-def parse_ref4(stream, meta, supp):
+def parse_ref4(stream, meta, supp, cu):
     return make_dieptr(
         meta,
         parse_as_int(
-            parse_data4(stream, meta, supp),
+            parse_data4(stream, meta, supp, cu),
             meta,
         ),
+        cu,
     )
 
 
-def parse_ref8(stream, meta, supp):
+def parse_ref8(stream, meta, supp, cu):
     return make_dieptr(
         meta,
         parse_as_int(
-            parse_data8(stream, meta, supp),
+            parse_data8(stream, meta, supp, cu),
             meta,
         ),
+        cu,
     )
 
 
-def parse_ref_udata(stream, meta, supp):
+def parse_ref_udata(stream, meta, supp, cu):
     return make_dieptr(
         meta,
         parse_as_int(
-            parse_udata(stream, meta, supp),
+            parse_udata(stream, meta, supp, cu),
             meta,
         ),
+        cu,
     )
 
 
-def parse_ref_addr(stream, meta, supp):
-    offset_int = parse_sec_offset(stream, meta, supp)
+def parse_ref_addr(stream, meta, supp, cu):
+    offset_int = parse_sec_offset(stream, meta, supp, cu)
     return meta._dieptrclass(meta, offset_int, True)

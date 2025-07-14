@@ -50,8 +50,8 @@ FORM_TO_PARSER_MAPPING = {
 }
 
 
-def parse_form(form, stream, meta, supp):
+def parse_form(form, stream, meta, supp, cu):
     parser = FORM_TO_PARSER_MAPPING.get(form)
     if parser is None:
         raise TypeError(form)
-    return parser(stream, meta, supp)
+    return parser(stream, meta, supp, cu)

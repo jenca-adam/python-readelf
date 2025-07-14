@@ -1,4 +1,7 @@
 from .base_type import BaseType
+from .struct import StructureType, UnionType, ClassType
+from .member import Member
+from .modified import ModifiedType
 from readelf.const import DW_TAG
 
 
@@ -7,7 +10,23 @@ class NotSpecial:
         pass
 
 
-TAG_TO_PARSER_MAPPING = {DW_TAG.DW_TAG_base_type: BaseType}
+TAG_TO_PARSER_MAPPING = {
+    DW_TAG.DW_TAG_base_type: BaseType,
+    DW_TAG.DW_TAG_structure_type: StructureType,
+    DW_TAG.DW_TAG_union_type: UnionType,
+    DW_TAG.DW_TAG_class_type: ClassType,
+    DW_TAG.DW_TAG_member: Member,
+    DW_TAG.DW_TAG_atomic_type: ModifiedType,
+    DW_TAG.DW_TAG_const_type: ModifiedType,
+    DW_TAG.DW_TAG_immutable_type: ModifiedType,
+    DW_TAG.DW_TAG_packed_type: ModifiedType,
+    DW_TAG.DW_TAG_pointer_type: ModifiedType,
+    DW_TAG.DW_TAG_reference_type: ModifiedType,
+    DW_TAG.DW_TAG_restrict_type: ModifiedType,
+    DW_TAG.DW_TAG_rvalue_reference_type: ModifiedType,
+    DW_TAG.DW_TAG_shared_type: ModifiedType,
+    DW_TAG.DW_TAG_volatile_type: ModifiedType,
+}
 
 
 def parse_die(die):
