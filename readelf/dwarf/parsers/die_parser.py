@@ -2,6 +2,8 @@ from .base_type import BaseType
 from .struct import StructureType, UnionType, ClassType
 from .member import Member
 from .modified import ModifiedType
+from .typedef import Typedef
+from .array import Array
 from readelf.const import DW_TAG
 
 
@@ -26,6 +28,8 @@ TAG_TO_PARSER_MAPPING = {
     DW_TAG.DW_TAG_rvalue_reference_type: ModifiedType,
     DW_TAG.DW_TAG_shared_type: ModifiedType,
     DW_TAG.DW_TAG_volatile_type: ModifiedType,
+    DW_TAG.DW_TAG_typedef: Typedef,
+    DW_TAG.DW_TAG_array_type: Array
 }
 
 

@@ -2,7 +2,7 @@ from .leb128 import leb128_parse
 from .err import DWARFError
 from ..const import *
 from ..helpers import is_eof
-
+import warnings
 
 class AbbreviationTableEntry:
     def __init__(
@@ -40,20 +40,24 @@ class AbbreviationTableEntry:
             raise EOFError("Section ends while reading has_children")
         has_children = has_children_bytes[0]
         attributes = []
+        print(tag)
         while True:
             attr_int, form_int = leb128_parse(stream), leb128_parse(stream)
             if attr_int == 0 and form_int == 0:
                 break
             else:
                 if attr_int not in DW_AT:
-                    raise DWARFError(
+                    warnings.warn(
+                    UserWarning(
                         f"unknown DW_AT in abbreviation table : 0x{attr_int:X}"
+                    )
                     )
                 if form_int not in DW_FORM:
                     raise DWARFError(
                         f"unknown DW_FORM in abbreviation table: 0x{form_int:X}"
                     )
-                attr, form = DW_AT(attr_int), DW_FORM(form_int)
+                attr, form = DW_AT(attr_int) if attr_int in DW_AT else attr_int, DW_FORM(form_int)
+                print(attr, form)
                 if form == DW_FORM.DW_FORM_implicit_const:
                     attributes.append((attr, (form, leb128_parse(stream, signed=True))))
                 else:

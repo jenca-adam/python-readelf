@@ -444,6 +444,7 @@ class DW_TAG(enum.Enum, metaclass=HasUserMeta):
 
 
 class DW_AT(enum.Enum, metaclass=HasUserMeta):
+    DW_AT_invalid = 0x00
     DW_AT_sibling = 0x01
     DW_AT_location = 0x02
     DW_AT_name = 0x03
