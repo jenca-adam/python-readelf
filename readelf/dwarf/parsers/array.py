@@ -1,5 +1,6 @@
 from readelf.const import DW_AT
 
+
 class Array:
     def __init__(self, die):
         attrs = die.attrs
@@ -9,4 +10,3 @@ class Array:
         self.byte_stride = attrs.get(DW_AT.DW_AT_byte_stride)
         self.bit_stride = attrs.get(DW_AT.DW_AT_bit_stride)
         self.rank = attrs.get(DW_AT.DW_AT_rank)
-        

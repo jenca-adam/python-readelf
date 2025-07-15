@@ -5,6 +5,7 @@ from .line import LnoProgram
 from .macro import MacroUnit
 from .aranges import AddressRangesSet
 from .die import DIEPtr
+from .addrtab import AddrTabs
 import io
 
 
@@ -21,6 +22,7 @@ class DWARF:
             self.debug_line_str,
             self.debug_macro,
             self.debug_aranges,
+            self.debug_addr,
         ) = extract_sections(
             elf_file,
             ".debug_info",
@@ -31,6 +33,7 @@ class DWARF:
             ".debug_line_str",
             ".debug_macro",
             ".debug_aranges",
+            ".debug_addr",
             required=[0, 1],
             errmsg="file has missing debug information: missing section: {!r}",
         )
@@ -65,7 +68,9 @@ class DWARF:
                 self.address_ranges.append(
                     AddressRangesSet.parse(self, self._debug_aranges_stream)
                 )
-
+        self.address_tables = None
+        if self.debug_addr:
+            self.address_tables = AddrTabs(self.debug_addr.content, self)
         _debug_abbrev = io.BytesIO(self.debug_abbrev.content)
         self.abbrevs = parse_abbr_section(_debug_abbrev)
 

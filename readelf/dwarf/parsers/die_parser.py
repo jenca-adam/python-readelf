@@ -4,6 +4,7 @@ from .member import Member
 from .modified import ModifiedType
 from .typedef import Typedef
 from .array import Array
+from .variable import Variable, Constant, FormalParameter
 from readelf.const import DW_TAG
 
 
@@ -29,7 +30,11 @@ TAG_TO_PARSER_MAPPING = {
     DW_TAG.DW_TAG_shared_type: ModifiedType,
     DW_TAG.DW_TAG_volatile_type: ModifiedType,
     DW_TAG.DW_TAG_typedef: Typedef,
-    DW_TAG.DW_TAG_array_type: Array
+    DW_TAG.DW_TAG_array_type: Array,
+    DW_TAG.DW_TAG_variable: Variable,
+    DW_TAG.DW_TAG_constant: Constant,
+    DW_TAG.DW_TAG_formal_parameter: FormalParameter
+
 }
 
 
