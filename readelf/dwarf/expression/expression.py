@@ -88,7 +88,11 @@ def get_operands(op, cu, stream, meta):
         return [op.value - DW_OP.DW_OP_breg0.value, leb128_parse(stream)]
     elif DW_OP.DW_OP_reg0.value <= op.value <= DW_OP.DW_OP_reg31.value:
         return [op.value - DW_OP.DW_OP_reg0.value]
-    elif op in [DW_OP.DW_OP_bregx.value, DW_OP.DW_OP_regval_type.value]:
+    elif op in [
+        DW_OP.DW_OP_bregx.value,
+        DW_OP.DW_OP_regval_type.value,
+        DW_OP.DW_OP_bit_piece,
+    ]:
         return [leb128_parse(stream), leb128_parse(stream)]
     elif op in (
         DW_OP.DW_OP_dup,
@@ -123,6 +127,7 @@ def get_operands(op, cu, stream, meta):
         DW_OP.DW_OP_ne,
         DW_OP.DW_OP_nop,
         DW_OP.DW_OP_stack_value,
+        DW_OP.DW_OP_piece,
     ):
         return []
     elif op in (DW_OP.DW_OP_deref_type, DW_OP.DW_OP_xderef_type):
