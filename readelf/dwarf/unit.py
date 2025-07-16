@@ -1,8 +1,7 @@
 import io
-from readelf.helpers import endian_read, is_eof
-from readelf.const import *
+from readelf.helpers import endian_read
+from readelf.const import ARCH, DW_UT
 from .err import DWARFError
-from .leb128 import leb128_parse
 from .die import DIE, DIEPtr
 from .meta import DWARFMeta
 

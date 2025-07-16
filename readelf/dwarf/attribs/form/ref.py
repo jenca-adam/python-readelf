@@ -1,7 +1,6 @@
 from .const import parse_data1, parse_data2, parse_data4, parse_data8, parse_udata
 from .sec_offset import parse_sec_offset
 from ..as_int import parse_as_int
-import io
 
 
 def make_dieptr(meta, off, cu):

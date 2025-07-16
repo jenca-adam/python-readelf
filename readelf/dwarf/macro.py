@@ -50,7 +50,7 @@ class Macro:
         elif opcode == DW_MACRO.DW_MACRO_start_file and lnop:
             try:
                 file = lnop.files[operands[1]]
-            except:
+            except (IndexError, KeyError):
                 file = None
             file_stack.append(file)
         if opcode == DW_MACRO.DW_MACRO_end_file and file_stack:

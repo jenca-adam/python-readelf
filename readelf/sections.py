@@ -1,4 +1,3 @@
-import io
 from .parsers import parse_content
 from .helpers import map_public_attributes
 

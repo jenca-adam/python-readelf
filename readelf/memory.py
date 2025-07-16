@@ -22,7 +22,6 @@ class Memory:
     def read(self, n=None):
         if n is None:
             n = self.size - self.index
-        right_bound = self.index + n
         output = bytearray(n)
         for addr, (content, _) in self.items.items():
             start = max(addr - self.index, 0)

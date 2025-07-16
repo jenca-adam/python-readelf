@@ -1,7 +1,6 @@
 from .err import DWARFError
 from .leb128 import leb128_parse
 from .attribs.form import parse_form
-from .unit import CompilationUnit
 from .meta import DWARFMeta
 from readelf.helpers import endian_read, endian_parse, read_struct
 from readelf.const import DW_FORM, DW_LNCT, ARCH, DW_LNS, DW_LNE

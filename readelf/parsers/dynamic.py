@@ -1,5 +1,5 @@
 from ..maps import DT_D_VAL, DT_D_PTR
-from ..const import *
+from ..const import DT, ARCH
 from ..helpers import endian_read, split_array
 from io import BytesIO
 import functools

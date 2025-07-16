@@ -1,5 +1,5 @@
 from io import BytesIO
-from ..const import *
+from ..const import STV, STT, STB, ARCH, SHN
 from ..helpers import endian_read
 
 SHN_LORESERVE = 0xFF00

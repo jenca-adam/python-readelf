@@ -13,12 +13,12 @@ class ModifiedType:
         if self.type is None:
             raise ValueError("no type assigned")
         if self.tag in (
-            DW_TAG_atomic_type,
-            DW_TAG_const_type,
-            DW_TAG_immutable_type,
-            DW_TAG_packed_type,
-            DW_TAG_shared_type,
-            DW_TAG_volatile_type,
+            DW_TAG.DW_TAG_atomic_type,
+            DW_TAG.DW_TAG_const_type,
+            DW_TAG.DW_TAG_immutable_type,
+            DW_TAG.DW_TAG_packed_type,
+            DW_TAG.DW_TAG_shared_type,
+            DW_TAG.DW_TAG_volatile_type,
         ):
             return self.type.decode(stream)
         raise NotImplementedError(f"decoding of {self.tag} not yet supported")

@@ -1,6 +1,5 @@
 from .err import ParseError
-from .const import *
-from .maps import *
+from .const import ARCH, ENDIAN, EI_VER, ABI, ET, ISA, PT, SHT, SHF
 from .helpers import endian_read
 import math
 

@@ -1,5 +1,5 @@
 from readelf.const import DW_AT, DW_ATE, DW_END, ENDIAN
-from readelf.dwarf.err import DWARFError, DWARFEncodingError
+from readelf.dwarf.err import DWARFError
 from readelf.helpers import endian_parse
 import math
 import struct
@@ -84,3 +84,5 @@ class BaseType:
             sfmt = STRUCTS.get((DW_ATE.DW_ATE_float, self.type_size // 2))
             if sfmt:
                 return complex(*struct.unpack(sfmt * 2, buf))
+
+

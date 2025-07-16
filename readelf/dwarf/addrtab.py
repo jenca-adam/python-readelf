@@ -14,19 +14,20 @@ class AddrTab:
         self.parent = parent
 
     @classmethod
-    def from_stream(self, stream, parent):
+    def from_stream(cls, stream, parent):
         endian = parent.parent.elf_file.endian
-        unit_length = endian_read(st, 4, endian)
+        unit_length = endian_read(stream, 4, endian)
         if unit_length == 0xFFFFFFFF:
-            unit_length = endian_read(st, 8, endian)
-        version = endian_read(st, 2, endian)
+            unit_length = endian_read(stream, 8, endian)
+        version = endian_read(stream, 2, endian)
         if version != 5:
             raise DWARFError(
                 f"can't read address table: only DWARF version 5 is currently supported ({version=})"
             )
-        address_size = ord(st.read(1))
-        segment_selector_size = ord(st.read(1))
-
+        address_size = ord(stream.read(1))
+        segment_selector_size = ord(stream.read(1))
+        entries = [] # TODO
+        return cls(unit_length, address_size, segment_selector_size, entries, parent)
 
 class AddrTabs:
     def __init__(self, content, dwarf):

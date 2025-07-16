@@ -1,6 +1,6 @@
 from .header import parse_header, parse_section_header, parse_program_header
-from .const import *
-from .err import *
+from .const import ARCH, SHT, SHF
+from .err import ParseError
 from .helpers import split_array
 from .sections import Section
 from .segments import ProgramSegments

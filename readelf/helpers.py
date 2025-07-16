@@ -1,5 +1,4 @@
-from .const import *
-import math
+from .const import ENDIAN
 import struct
 
 
