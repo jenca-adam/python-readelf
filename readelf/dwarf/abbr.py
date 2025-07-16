@@ -4,6 +4,7 @@ from ..const import DW_TAG, DW_AT, DW_FORM
 from ..helpers import is_eof
 import warnings
 
+
 class AbbreviationTableEntry:
     def __init__(
         self,
@@ -47,15 +48,17 @@ class AbbreviationTableEntry:
             else:
                 if attr_int not in DW_AT:
                     warnings.warn(
-                    UserWarning(
-                        f"unknown DW_AT in abbreviation table : 0x{attr_int:X}"
-                    )
+                        UserWarning(
+                            f"unknown DW_AT in abbreviation table : 0x{attr_int:X}"
+                        )
                     )
                 if form_int not in DW_FORM:
                     raise DWARFError(
                         f"unknown DW_FORM in abbreviation table: 0x{form_int:X}"
                     )
-                attr, form = DW_AT(attr_int) if attr_int in DW_AT else attr_int, DW_FORM(form_int)
+                attr, form = (
+                    DW_AT(attr_int) if attr_int in DW_AT else attr_int
+                ), DW_FORM(form_int)
                 if form == DW_FORM.DW_FORM_implicit_const:
                     attributes.append((attr, (form, leb128_parse(stream, signed=True))))
                 else:

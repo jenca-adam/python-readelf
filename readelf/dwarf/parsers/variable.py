@@ -20,8 +20,10 @@ class Variable:
         self.linkage_name = attrs.get(DW_AT.DW_AT_linkage_name)
         self.type = type_ref.content if type_ref else None
 
+
 class Constant(Variable):
     pass
+
 
 class FormalParameter(Variable):
     pass

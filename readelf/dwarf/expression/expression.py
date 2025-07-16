@@ -20,10 +20,12 @@ STRUCTS = {
     DW_OP.DW_OP_call4: "I",
 }
 
+
 class Operation:
     def __init__(self, type, operands):
         self.type = type
         self.operands = operands
+
     @classmethod
     def parse(cls, stream, cu, meta):
         (opcode,) = read_struct(stream, "B")
@@ -31,29 +33,34 @@ class Operation:
         print(op)
         operands = get_operands(op, cu, stream, meta)
         return cls(op, operands)
+
     def __repr__(self):
         return f"{self.type.name}({self.operands})"
+
 
 class Expression:
     def __init__(self, operations):
         self.operations = operations
-    
+
     def evaluate(self):
-        #TODO
+        # TODO
         raise NotImplementedError
-    
+
     @classmethod
     def parse(cls, stream, cu, meta):
         operations = []
         while not is_eof(stream):
             operations.append(Operation.parse(stream, cu, meta))
         return cls(operations)
+
     def __repr__(self):
-        return (f"Expression({', '.join(repr(op) for op in self.operations)})")
+        return f"Expression({', '.join(repr(op) for op in self.operations)})"
+
+
 def get_operands(op, cu, stream, meta):
     # parses a list of operands based on an opcode
     # for lit0-lit31, breg0-breg31, the list also includes the constant associated with the opcode
-    # the operands are passed as integers(with the exception of DW_OP_entry_value), with no interpretation 
+    # the operands are passed as integers(with the exception of DW_OP_entry_value), with no interpretation
     if DW_OP.DW_OP_lit0.value <= op.value <= DW_OP.DW_OP_lit31.value:
         return [op.value - DW_OP.DW_OP_lit0.value]
     elif op in (DW_OP.DW_OP_addr, DW_OP.DW_OP_call_ref):
@@ -70,7 +77,7 @@ def get_operands(op, cu, stream, meta):
         DW_OP.DW_OP_plus_uconst,
         DW_OP.DW_OP_convert,
         DW_OP.DW_OP_reinterpret,
-        DW_OP.DW_OP_regx
+        DW_OP.DW_OP_regx,
     ):
         return [leb128_parse(stream)]
     elif op == DW_OP.DW_OP_const_type:
@@ -115,12 +122,12 @@ def get_operands(op, cu, stream, meta):
         DW_OP.DW_OP_gt,
         DW_OP.DW_OP_ne,
         DW_OP.DW_OP_nop,
-        DW_OP.DW_OP_stack_value
+        DW_OP.DW_OP_stack_value,
     ):
         return []
     elif op in (DW_OP.DW_OP_deref_type, DW_OP.DW_OP_xderef_type):
         return [read_struct(stream, "B"), leb128_parse(stream)]
-    elif op in  (DW_OP.DW_OP_entry_value, DW_OP.DW_OP_implicit_value):
+    elif op in (DW_OP.DW_OP_entry_value, DW_OP.DW_OP_implicit_value):
         length = leb128_parse(stream)
         return [length, stream.read(length)]
     elif op == DW_OP.DW_OP_implicit_pointer:

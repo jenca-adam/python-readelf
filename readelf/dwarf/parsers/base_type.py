@@ -84,5 +84,3 @@ class BaseType:
             sfmt = STRUCTS.get((DW_ATE.DW_ATE_float, self.type_size // 2))
             if sfmt:
                 return complex(*struct.unpack(sfmt * 2, buf))
-
-

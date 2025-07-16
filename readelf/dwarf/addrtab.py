@@ -26,8 +26,9 @@ class AddrTab:
             )
         address_size = ord(stream.read(1))
         segment_selector_size = ord(stream.read(1))
-        entries = [] # TODO
+        entries = []  # TODO
         return cls(unit_length, address_size, segment_selector_size, entries, parent)
+
 
 class AddrTabs:
     def __init__(self, content, dwarf):

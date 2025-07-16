@@ -33,8 +33,7 @@ TAG_TO_PARSER_MAPPING = {
     DW_TAG.DW_TAG_array_type: Array,
     DW_TAG.DW_TAG_variable: Variable,
     DW_TAG.DW_TAG_constant: Constant,
-    DW_TAG.DW_TAG_formal_parameter: FormalParameter
-
+    DW_TAG.DW_TAG_formal_parameter: FormalParameter,
 }
 
 

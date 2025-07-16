@@ -1,3 +1,3 @@
 from .expression import Expression
 
-__all__=["Expression"]
+__all__ = ["Expression"]
