@@ -21,6 +21,16 @@ def extract_sections(
     return secs
 
 
+def read_string(buf):
+    out = bytearray()
+    while True:
+        b = buf.read(1)
+        if b == b"\x00":
+            break
+        out.append(ord(b))
+    return bytes(out)
+
+
 def endian_read(buf, endian, n, **kwargs):
     read_result = buf.read(n)
     if len(read_result) < n:

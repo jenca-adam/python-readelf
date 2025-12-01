@@ -770,9 +770,7 @@ class DW_MACRO(enum.Enum, metaclass=HasUserMeta):
 class DW_OP(enum.Enum, metaclass=HasUserMeta):
     # oh boy
     DW_OP_addr = 0x03
-
     DW_OP_deref = 0x06
-
     DW_OP_const1u = 0x08
     DW_OP_const1s = 0x09
     DW_OP_const2u = 0x0A
@@ -813,7 +811,6 @@ class DW_OP(enum.Enum, metaclass=HasUserMeta):
     DW_OP_lt = 0x2D
     DW_OP_ne = 0x2E
     DW_OP_skip = 0x2F
-
     DW_OP_lit0 = 0x30
     DW_OP_lit1 = 0x31
     DW_OP_lit2 = 0x32
@@ -846,7 +843,6 @@ class DW_OP(enum.Enum, metaclass=HasUserMeta):
     DW_OP_lit29 = 0x4D
     DW_OP_lit30 = 0x4E
     DW_OP_lit31 = 0x4F
-
     DW_OP_reg0 = 0x50
     DW_OP_reg1 = 0x51
     DW_OP_reg2 = 0x52
@@ -879,7 +875,6 @@ class DW_OP(enum.Enum, metaclass=HasUserMeta):
     DW_OP_reg29 = 0x6D
     DW_OP_reg30 = 0x6E
     DW_OP_reg31 = 0x6F
-
     DW_OP_breg0 = 0x70
     DW_OP_breg1 = 0x71
     DW_OP_breg2 = 0x72
@@ -912,7 +907,6 @@ class DW_OP(enum.Enum, metaclass=HasUserMeta):
     DW_OP_breg29 = 0x8D
     DW_OP_breg30 = 0x8E
     DW_OP_breg31 = 0x8F
-
     DW_OP_regx = 0x90
     DW_OP_fbreg = 0x91
     DW_OP_bregx = 0x92
@@ -941,3 +935,18 @@ class DW_OP(enum.Enum, metaclass=HasUserMeta):
     DW_OP_reinterpret = 0xA9
     DW_OP_lo_user = 0xE0
     DW_OP_hi_user = 0xFF
+
+class DW_EH_PE(enum.Enum, metaclass=ContainsEnum):
+    DW_EH_PE_omit = 0xFF
+    DW_EH_PE_absptr = 0x00
+    DW_EH_PE_uleb128 = 0x01
+    DW_EH_PE_udata2 = 0x02
+    DW_EH_PE_udata4 = 0x03
+    DW_EH_PE_udata8 = 0x04
+    DW_EH_PE_sleb128 = 0x09
+    DW_EH_PE_sdata2 = 0x0A
+    DW_EH_PE_sdata4 = 0x0B
+    DW_EH_PE_sdata8 = 0x0C
+    DW_EH_PE_pcrel = 0x10
+    DW_EH_PE_datarel = 0x30
+

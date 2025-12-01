@@ -1,4 +1,5 @@
 import io
+from readelf.helpers import read_string
 
 
 class StrTab:
@@ -12,11 +13,6 @@ class StrTab:
 
     def get_name(self, offset):
         self.stream.seek(offset)
-        result = bytearray()
-        while True:
-            nb = self.stream.read(1)
-            if nb == b"\x00" or not nb:
-                break
-            result.append(ord(nb))
+        result = read_string(self.stream)
         self.stream.seek(0)
-        return bytes(result).decode("ascii")
+        return result.decode("ascii")
